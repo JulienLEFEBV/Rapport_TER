@@ -1,7 +1,14 @@
 #import "@preview/latexlike-report:1.0.0": *
+
 #import "@preview/algorithmic:1.0.7"
 #import algorithmic: style-algorithm, algorithm-figure
 #show: style-algorithm
+
+#import "@preview/great-theorems:0.1.2": *
+#import "@preview/rich-counters:0.2.1": *
+
+#set heading(numbering: "1.1")
+#show: great-theorems-init
 
 #show: latexlike-report.with(
  
@@ -76,12 +83,30 @@
 }
 
 
+#let mathcounter = rich-counter(
+  identifier: "mathblocks",
+  inherited_levels: 1
+)
+#let theorem = mathblock(
+  blocktitle: "Théorème",
+  counter: mathcounter,
+)
+#let definition = mathblock(
+  blocktitle: "Définition",
+  counter: mathcounter,
+)
+
+
 #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]
 #let shaung_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
 #let rtvk = link("https://github.com/CorentinVaillant/RtVk")[*GitHub du projet*]
 #let suisses = link("https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo")[*Monte Carlo Estimators for Differential Light Transport*]
 #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
 
+
+#let ensemble_surfaces = $cal(M)$
+#let espace_chemins = $Omega$
+#let chemin = $#overline("x")$
 
 = Introduction
 
@@ -111,6 +136,7 @@ La luminance représente la luminosité que l'œil humain perçoit, provenant d'
 L'équation du rendu (#equation_rendu) nous permet de calculer la luminance sur les différentes surfaces de notre scène 3D.
 On peut la définir comme ci-dessous :
 
+#definition(title : "Equation du Rendu")[
 $ L_o\(x,omega_o) = L_e\(x,omega_o) + integral_Omega L_i\(x,omega_i) f_i\(x,omega_0,omega_i) #overline[cos]\(theta_i) d omega_i $ <équation_rendu>
 
 - $L_o\(x,omega_o)$ représente la luminance sortante au point $x$ dans la direction $omega_o$.
@@ -120,6 +146,7 @@ $ L_o\(x,omega_o) = L_e\(x,omega_o) + integral_Omega L_i\(x,omega_i) f_i\(x,omeg
 - $f_i\(x,omega_0,omega_i)$ représente la BRDF qui indique comment la luminance arrivant en $x$ depuis la direction $omega_i$ et réfléchi dans la direction $omega_o$.
 - $theta$ représente l'angle formé $omega_i$ et la $arrow(n)$ normale de la surface.
 - $#overline[cos]\(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
+]
 
 L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique, notamment en raison de sa nature récursive.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
@@ -131,16 +158,13 @@ Il se base sur une techinique de lancer de rayon à partir de la caméra vers la
 Cela donne le même résultat que dans le sens de la lumière d'après le principe du retour inverse de la lumière de Fermat.
 Il se base aussi sur les lois de Snell-Decartes de réflexion et réfraction de la lumière.
 Une méthode de ray tracing naïve de la marche aléatoire :
-\
-\
-\
 #algorithm-figure(
   "Marche Aléatoire",
   vstroke: .5pt + luma(200),
   {
     import algorithmic: *
     Procedure(
-      "Li",
+      [$L_i$],
       ("Rayon r",  [depth $in NN$]),
       {
         Assign("intersection","Intersection(r)")
@@ -166,13 +190,34 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         If([$f_(cos) = 0$], Return[$L_e$])
         Comment([Appel récursif])
         Assign("r",[CreerRayon($omega_i$)])
-        Return[$L_e$ + fcos $times$ Li(r,depth+1) / (1 / (4 $times$ $pi$))]
+        Return[$L_e$ + fcos $times$ $L_i$(r,depth+1) / (1 / (4 $times$ $pi$))]
       },
     )
   }
 )
 
 == Le Path Tracing
+
+L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins.
+
+#definition(title : "Chemin de lumière et espace des chemins")[
+  Soit #ensemble_surfaces l'ensemble des surfaces des objets de notre scène. On appelle chemin de lumière (ou light path) un vecteur $#chemin = (x_0,x_1,...,x_N)$ de $#ensemble_surfaces^(N+1)$. Les chemins commencent sur une lumière en $x_0$ pour aller jusqu'à la caméra en $x_N$. On appel espace des chemins (ou path space) l'ensemble $#espace_chemins := union_(N=1)^infinity #ensemble_surfaces^(N+1)$.
+]
+
+En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins, on obtient:
+
+#definition(title : "Équation du rendu sur l'espace des chemins")[
+  $ I = integral_#espace_chemins f(#chemin) d mu(#chemin) $ <équation_rendu_chemins>
+Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := Pi^N_(n=0) d A(x_n)$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante : 
+$ f(#chemin) = (Pi^(N-1)_(n=0)g(x_(n+1):x_(n-1),w_n)) W_e (x_N -> x_(N-1)) $ <f_équation_du_rendu_chemins>
+où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
+dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et 
+$ g(x_(n+1):x_(n-1),w_n)) := f_s (x_(n-1)->x_n->x_n+1) G(x_n <-> x_(n+1)) $ <g_équation_du_rendu_chemins>
+où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et 
+$ G(x_n <-> x_(n+1)) := VV (x_n <-> x_(n+1)) G_0(x_n <-> x_(n+1)) $ 
+<G_équation_du_rendu_chemins>
+où $VV (x_n <-> x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$ sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et $ G_0 := frac(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|,||x_(n+1)-x_n||² ) $ <G0_équation_du_rendu_chemins>
+]
 
 == Autres Méthodes
 
