@@ -102,7 +102,10 @@
 #let rtvk = link("https://github.com/CorentinVaillant/RtVk")[*GitHub du projet*]
 #let suisses = link("https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo")[*Monte Carlo Estimators for Differential Light Transport*]
 #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
-
+#let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
+#let VCM = link("https://www.iliyan.com/publications/ImplementingVCM/")[*Vertex Connection and Merging*]
+#let cone = link("https://en.wikipedia.org/wiki/Cone_tracing")[*Cone Tracing*]
+#let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
 
 #let ensemble_surfaces = $cal(M)$
 #let espace_chemins = $Omega$
@@ -196,6 +199,8 @@ Une méthode de ray tracing naïve de la marche aléatoire :
   }
 )
 
+//TODO parler du fait que c'est une quadrature
+
 == Le Path Tracing
 
 L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins.
@@ -217,10 +222,36 @@ où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et 
 $ G(x_n <-> x_(n+1)) := VV (x_n <-> x_(n+1)) G_0(x_n <-> x_(n+1)) $ 
 <G_équation_du_rendu_chemins>
 où $VV (x_n <-> x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$ sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et $ G_0 := frac(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|,||x_(n+1)-x_n||² ) $ <G0_équation_du_rendu_chemins>
+où $omega_n$ représente le vecteur unitaire partant $x_n$ et pointant vers $x_(n+1)$.
 ]
 
+Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de Shung Zhao et son équipe (#shaung_zhao) de calculer la différentielle de notre scène.
+En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bord (ou boundary).
+
+
+Cette réécriture est aussi à la base de l'algorithme du path tracing qui est fondamental car nous verrons qu'il est possible de le différencier. 
+Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les chemins (@équation_rendu_chemins).
+
+//TODO Ajouter algo
 == Autres Méthodes
 
+De nombreuses autres méthodes existent pour résoudre l'équation du rendu et ont chacune leurs avantages mais aussi leurs inconvénients. Parmi celles-ci, on retrouve : 
+
+
++ #block[La rastérisation qui, comme le ray tracing, est une quadrature de l'équation du rendu. 
+Elle est non biaisée et différenciable mais elle reste très limitée, notamment au niveau de la différenciation et à une convergence assez lente. //TODO expliquer le principe
+]
+
++ #block[Le photon mapping qui se base aussi sur une technique de lancer de rayon.
+Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une photon map.
+Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la photon map avec un algorithme des plus proches voisins.
+Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par Shuang Zhao et son équipe (#shaung_zhao), nous en reparlerons dans la section dédiée.]
+
++ #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
+De plus cet algorithme est non biaisé mais, malheureusement, à ce jour aucune technique de différentiation n'a été découverte.]
+
++ #block[Bien d'autres méthodes existent comme le #metropolis qui se base sur l'algorithme de Metropolis-Hastings, le #VCM qui fusionne le bidirectional path tracing et le photon mapping, le #cone qui donne une épaisseur aux rayons, ce que ne fait pas le raytracing ou encore le #splating qui effectue le rendu à l'aide de données extraites d'image et beaucoup d'autres… //On peut en rajouter si on en trouve des sympas :)
+]
 = La Différentiation
 
 == La Méthode Naïve
