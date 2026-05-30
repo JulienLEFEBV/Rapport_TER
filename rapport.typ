@@ -165,7 +165,7 @@ C'est pour cela que des méthodes pour estimer cette intégrale ont été mises 
 == Le Ray Tracing
 
 #definition(title : "Rayon")[
-  On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in  RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ représente un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
+  On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in  RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
 ]
 
 Le ray tracing (lancée de rayon dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu).
@@ -187,7 +187,7 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         Comment[Cas où le rayon n'intersecte aucune surface]
         If("Pas d'intersection", {
           Assign([$L_e$], "0")
-          For([lumière $in$ Lumières Directionelles], Assign([$L_e$], [$L_e$ + lumière.$L_e$]))
+          For([lumière $in$ Lumières Directionelles], Assign([$L_e$], [$L_e$ + lumière.$L_e\(#rayon("r"))$]))
           Return[$L_e$]
         })
         Comment[Recupération de la surface intersectée et de son émission]
@@ -214,7 +214,7 @@ Une méthode de ray tracing naïve de la marche aléatoire :
 
 == Le Path Tracing
 
-L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par Veach en 1997 dans son papier #Veach_equation_du_rendu_chemin.
+L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par Veach en 1997 notamment dans son papier #Veach_equation_du_rendu_chemin.
 
 #definition(title: "Chemin de lumière et espace des chemins")[
   Soit #ensemble_surfaces l'ensemble des surfaces des objets de notre scène. 
@@ -249,6 +249,60 @@ En effet, on verra qu'il est possible de "rentrer" la différentielle à l'inté
 
 Cette réécriture est aussi à la base de l'algorithme du path tracing qui est fondamental car nous verrons qu'il est possible de le différencier.
 Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les chemins (@équation_rendu_chemins).
+
+
+//TODO à verifier et à commenter
+#algorithm-figure(
+  "Path Tracer",
+  vstroke: .5pt + luma(200),
+  {
+    import algorithmic: *
+     Procedure(
+      [$L_i$],
+      ([Rayon $#rayon("r")$]),
+       {
+        Assign("L",[0])
+        Assign($beta$,[1])
+        Assign([specularBounce],[vrai])
+        Assign("depth",[0])
+        While([$beta$ non nul],
+        {
+          Assign([intersection],[Intersection($#rayon("r")$)])
+          If([Pas d'intersection],
+            If([specularBounce],{
+              For([lumière $in$ Lumières Directionelles],Assign([$L$],[$L$+lumière.$L_e\(#rayon("r"))$]))
+             Break
+          }))
+          Assign([surface],"intersection.surface")
+          If("specularBounce",Assign($L$,[$L$+surface.$L_e\(-#rayon("r")."direction")$]))
+          If([depth = maxDepth],Break)
+          Assign("bsdf",[surface.BSDF($#rayon("r")$)])
+          If([bsdf = 0],{
+            [passerItersection($#rayon("r")$,intersection.tTouche) #linebreak()]
+            [Continuer]
+          })
+          Assign([$omega_o$],[$#rayon("r")$])
+          Assign("lumière",[ChoisirUneLumiereAléatoirement()]) //c'est vraiment ça ? je suis pas trop sur de moi :p
+          If([lumière != 0],{
+            Assign([pointLumière],"lumière.ChoisirPointAléatoirement()")
+            Assign([ls],[lumière.echantilloner$L_i$(intersection,pointLumière)])
+            If([ls != 0 et ls.pdf >0],{
+              Assign([$omega_i$],[ls.$omega_i$])
+              Assign([$f_(cos)$], [bsdf.f($omega_o$,$omega_i$) $times$ |$omega_i dot arrow(n)$|])
+              If([f != 0 et Visible(intersection,ls.pLumière)], Assign($L$,[$L$ + $beta times f_cos times "ls".L$/(lumière.p $times$ ls.pdf)]) )
+            })
+          })
+          Assign([bs],[bsdf.echantilloner($omega_o$)]) //pas sûr sûr :p
+          If([bs = 0], Break)
+          Assign([$beta$],[$beta times "bs".f times |omega_i dot arrow(n)|$ / bs.pdf])
+          Assign([specularBounce],[bs.estSpeculaire])
+          Assign([$#rayon("r")$],[CreerRayon(bs.$omega_i$)])
+        })
+        Return[$L$]
+      },
+    )
+  },
+)
 
 //TODO Ajouter algo
 == Autres Méthodes
