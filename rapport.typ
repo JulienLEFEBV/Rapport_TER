@@ -73,6 +73,14 @@
   //For more customitation you can check the documentation. !! Enjoy :D !!
 )
 
+//===========Algorithmic style===============
+#let If = algorithmic.iflike.with(kw1: "si", kw2: "alors", kw3: "fin")
+#let While = algorithmic.iflike.with(kw1: "tant que", kw2: "faire", kw3: "fin")
+#let For = algorithmic.iflike.with(kw1: "pour", kw2: "faire", kw3: "fin")
+#let Else = algorithmic.iflike.with(kw1: "sinon", kw2: "", kw3: "fin", "")
+#let ElseIf = algorithmic.iflike.with(kw1: "sinon si", kw2: "alors", kw3: "fin")
+//! Ne fonctionne pas
+
 #set math.equation(numbering: "(1)", supplement: [éq.])
 #let no-num(content) = {
   math.equation(
@@ -96,9 +104,9 @@
   counter: mathcounter,
 )
 
-
+// Links
 #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]
-#let shaung_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
+#let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
 #let rtvk = link("https://github.com/CorentinVaillant/RtVk")[*GitHub du projet*]
 #let suisses = link(
   "https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo",
@@ -112,10 +120,13 @@
   "https://graphics.stanford.edu/papers/metro/metro.pdf",
 )[*Metropolis Light Transport*]
 
+// Math symboles
 #let ensemble_surfaces = $cal(M)$
 #let espace_chemins = $Omega$
 #let chemin = $#overline("x")$
 #let rayon(r) = $arrow(""_dot#r)$
+#let rayon_dir(r) = $arrow(""_dot#r).arrow(d)$
+#let rayon_ori(r) = $arrow(""_dot#r).o$
 
 = Introduction
 
@@ -127,7 +138,7 @@ Son utilité ne se limite pas qu'au rendu, il possède aussi des applications da
 Le rendu différentiel a une communauté de recherche très active.
 En effet ce domaine est très challengeant parce qu'à ce jour aucun algorithme efficace n'introduisant pas de biais n'a été découvert. Cela est notamment dû au fait de l'absence d'estimateurs de Monte Carlo efficaces.
 
-Dans ce TER, nous nous sommes intéressés aux travaux de Cheng Zhang, Bailey Miller, Kai Yan, Ioannis Gkioulekas et Shuang Zhao (#shaung_zhao) qui proposent une solution sans biais à ce problème basée sur la séparation en deux sous-problèmes.
+Dans ce TER, nous nous sommes intéressés aux travaux de Cheng Zhang, Bailey Miller, Kai Yan, Ioannis Gkioulekas et Shuang Zhao (#shuang_zhao) qui proposent une solution sans biais à ce problème basée sur la séparation en deux sous-problèmes.
 
 Pour effectuer ce TER, nous nous sommes aussi intéressés au ray tracing ainsi qu'au path tracing, notamment grâce à la série de livres #raytracing_in_one_weekend, dans le but d'acquérir les bases nécessaires à la compréhension du papier.
 
@@ -146,23 +157,29 @@ L'équation du rendu (#equation_rendu) nous permet de calculer la luminance sur 
 On peut la définir comme ci-dessous :
 
 #definition(title: "Equation du Rendu")[
+  #let Lo(o, w) = $L_o\(#o,#w)$
+  #let Le(o, w) = $L_e\(#o,#w)$
+  #let Li(o, w) = $L_i\(#o,#w)$
+  #let cosbar(x) = $overline(cos(#x))$
+  #let fi(x, wo, wi) = $f_(i)(#x)$
   $
-    L_o\(x,omega_o) = L_e\(x,omega_o) + integral_Omega L_i\(x,omega_i) f_i\(x,omega_0,omega_i) #overline[cos]\(theta_i) d omega_i
+    Lo(x, omega_o) = Le(x, omega_o) + integral_Omega Li(x, omega_i) fi(x, omega_o, omega_i) cosbar(theta_i) d omega_i
   $ <équation_rendu>
 
-  - $L_o\(x,omega_o)$ représente la luminance sortante au point $x$ dans la direction $omega_o$.
-  - $L_e\(x,omega_o)$ représente la luminance émise par le point $x$ dans la direction $omega_o$.
+
+  - $Lo(x, omega_o)$ représente la luminance sortante au point $x$ dans la direction $omega_o$..
+  - $Le(x, omega_o)$ représente la luminance émise par le point $x$ dans la direction $omega_o$.
   - $Omega$ représente la sphère de rayon 1 autour du point $x$.
-  - $L_i\(x,omega_i)$ représente la luminance arrivant en $x$ depuis la direction $omega_i$ et elle est définie de la manière suivante : $L_i\(x,omega_i)=L_o\(v\i\s(x,omega_i),-omega_i)$ où $v\i\s(x,omega_i)$ donne le premier point intersecté en partant dans la direction $omega_i$ a partir du point $x$.
-  - $f_i\(x,omega_0,omega_i)$ représente la BRDF qui indique comment la luminance arrivant en $x$ depuis la direction $omega_i$ et réfléchi dans la direction $omega_o$.
+  - $Li(x, omega_i)$ représente la luminance arrivant en $x$ depuis la direction $omega_i$ et elle est définie de la manière suivante : $L_i\(x,omega_i)=L_o\(v\i\s(x,omega_i),-omega_i)$ où $v\i\s(x,omega_i)$ donne le premier point intersecté en partant dans la direction $omega_i$ a partir du point $x$.
+  - $fi(x, omega_o, omega_i)$ représente la BRDF qui nous donne la distribution de la luminance arrivant en $x$ depuis la direction $omega_i$ et réfléchi dans la direction $omega_o$, il s'agit en faite d'une fonction décrivant les propriété photométrique d'une matière.
   - $theta$ représente l'angle formé $omega_i$ et la $arrow(n)$ normale de la surface.
-  - $#overline[cos]\(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
+  - $cosbar(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
 ]
 
 L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique, notamment en raison de sa nature récursive.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
 
-== Le Ray Tracing
+== Par quadrature (Ray Tracing)
 
 #definition(title: "Rayon")[
   On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
@@ -171,7 +188,8 @@ C'est pour cela que des méthodes pour estimer cette intégrale ont été mises 
 Le ray tracing (lancée de rayon dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu).
 Il se base sur une techinique de lancer de rayon à partir de la caméra vers la scène, c'est-à-dire dans le sens inverse de la lumière.
 Cela donne le même résultat que dans le sens de la lumière d'après le principe du retour inverse de la lumière de Fermat.
-Il se base aussi sur les lois de Snell-Decartes de réflexion et réfraction de la lumière.
+Il se base aussi sur les lois de Snell-Decartes de réflexion et réfraction de la lumière.\
+Il sagit en fait d'une quadrature de la scène, à partir de rayon envoyer récursivement.
 Une méthode de ray tracing naïve de la marche aléatoire :
 #algorithm-figure(
   "Marche Aléatoire",
@@ -192,7 +210,7 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         })
         Comment[Recupération de la surface intersectée et de son émission]
         Assign("surface", "intersection.surface")
-        Assign([$omega_o$], [$-#rayon("r")$.direction])
+        Assign([$omega_o$], [$-#rayon_dir("r")$])
         Assign([$L_e$], [surface.Le($omega_o$)])
         Comment([Cas où on a atteint le nombre maximum d'itération])
         If("depth = maxDepth", Return("Le"))
@@ -202,15 +220,19 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         Assign([$f_(cos)$], [bsdf($omega_o$,$omega_i$) $times$ |$omega_i dot arrow(n)$|])
         Comment([Si la partie non récursive est nulle il est inutile de continuer d'itérer])
         If([$f_(cos) = 0$], Return[$L_e$])
-        Comment([Appel récursif])
-        Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
-        Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4  pi))$]
+        Comment([Appel récursif, ($1/(4pi)$ : Probabilité de tiré une direction.)])
+        // Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
+        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?
+        Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4 pi))$]
       },
     )
   },
 )
 
-//TODO parler du fait que c'est une quadrature
+// @Julien, pense tu cette section utiles ?
+Généralement, les implémentation du lancer de rayon son avec de meilleur moyen pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleur convergence.
+
+//TODO mettre comparaison
 
 == Le Path Tracing
 
@@ -230,20 +252,35 @@ L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlev
 En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins, on obtient:
 
 #definition(title: "Équation du rendu sur l'espace des chemins")[
-  $ I = integral_#espace_chemins f(#chemin) d mu(#chemin) $ <équation_rendu_chemins>
-  Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := Pi^N_(n=0) d A(x_n)$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
-  $ f(#chemin) = (Pi^(N-1)_(n=0)g(x_(n+1):x_(n-1),w_n)) W_e (x_N -> x_(N-1)) $ <f_équation_du_rendu_chemins>
+
+  #let xbar = chemin
+  #let dmu(x) = $d mu(#x)$
+  #let dmu_def = $product^(N)_(n=0) d A(x_n)$
+  #let We(x, y) = $W_(e)(#x -> #y)$
+  #let g(z, x, wn) = $g(#z : #x, #wn)$
+  #let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n, x_(n+1))$
+  #let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
+  #let G_def = $VV(x_n, x_(n+1))G_0(x_n, x_(n+1))$
+  #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
+
+  $ I = integral_#espace_chemins f(#chemin) dmu(#xbar) $ <équation_rendu_chemins>
+  Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
+  $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
+  //@Julien *> j'aurais peut être mis sensibilité ?
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
-  $ g(x_(n+1):x_(n-1),w_n)) := f_s (x_(n-1)->x_n->x_n+1) G(x_n <-> x_(n+1)) $ <g_équation_du_rendu_chemins>
+  $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
-  $ G(x_n <-> x_(n+1)) := VV (x_n <-> x_(n+1)) G_0(x_n <-> x_(n+1)) $
-  <G_équation_du_rendu_chemins>
-  où $VV (x_n <-> x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$ sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et $ G_0 := frac(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|, ||x_(n+1)-x_n||²) $ <G0_équation_du_rendu_chemins>
+
+  $ G(x_n, x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
+
+  où $VV (x_n, x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$
+  sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et
+  $ G_0(x_n, x_(n+1)) := #G0_def $ <G0_équation_du_rendu_chemins>
   où $omega_n$ représente le vecteur unitaire partant $x_n$ et pointant vers $x_(n+1)$.
 ]
 
-Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de Shung Zhao et son équipe (#shaung_zhao) de calculer la différentielle de notre scène.
+Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de Shung Zhao et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
 En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bord (ou boundary).
 
 
@@ -252,6 +289,22 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
 
 
 //TODO à verifier et à commenter
+#let r = rayon("r")
+#let r_dir = rayon_dir("r")
+#let r_ori = rayon_ori("r")
+#let wo = $omega_o$
+#let wi = $omega_i$
+#let x0 = $x_0$
+#let x1 = $x_1$
+#let x2 = $x_2$
+#let alpha = $alpha$
+#let beta = $beta$
+#let epsilon = $epsilon$
+#let p0 = $p_0$
+#let alphadirect = $alpha_("directe")$
+#let alphaindirect = $alpha_("indirecte")$
+#let normalize(v) = $#v/(|#v|)$
+#let n(x) = $scr(n)(#x)$
 #algorithm-figure(
   "Path Tracer",
   vstroke: .5pt + luma(200),
@@ -259,47 +312,45 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
     import algorithmic: *
     Procedure(
       [$L_i$],
-      [Rayon $#rayon("r")$],
+      [Rayon $#r$],
       {
-        Assign("L", [0])
-        Assign($beta$, [1])
-        Assign([specularBounce], [vrai])
-        Assign("depth", [0])
-        While([$beta$ non nul], {
-          Assign([intersection], [Intersection($#rayon("r")$)])
-          If([Pas d'intersection], If([specularBounce], {
-            For([lumière $in$ Lumières Directionelles], Assign([$L$], [$L$+lumière.$L_e\(#rayon("r"))$]))
-            Break
-          }))
-          Assign([surface], "intersection.surface")
-          If("specularBounce", Assign($L$, [$L$+surface.$L_e\(-#rayon("r")."direction")$]))
-          If([depth = maxDepth], Break)
-          Assign("bsdf", [surface.BSDF($#rayon("r")$)])
-          If([bsdf = 0], {
-            [passerItersection($#rayon("r")$,intersection.tTouche) #linebreak()]
-            [Continuer]
-          })
-          Assign([$omega_o$], [$#rayon("r")$])
-          Assign("lumière", [ChoisirUneLumiereAléatoirement()]) //c'est vraiment ça ? je suis pas trop sur de moi :p
-          If([lumière != 0], {
-            Assign([pointLumière], "lumière.ChoisirPointAléatoirement()")
-            Assign([ls], [lumière.echantilloner$L_i$(intersection,pointLumière)])
-            If([ls != 0 et ls.pdf >0], {
-              Assign([$omega_i$], [ls.$omega_i$])
-              Assign([$f_(cos)$], [bsdf.f($omega_o$,$omega_i$) $times$ |$omega_i dot arrow(n)$|])
-              If([f != 0 et Visible(intersection,ls.pLumière)], Assign(
-                $L$,
-                [$L$ + $beta times f_cos times "ls".L$/(lumière.p $times$ ls.pdf)],
-              ))
-            })
-          })
-          Assign([bs], [bsdf.echantilloner($omega_o$)]) //pas sûr sûr :p
-          If([bs = 0], Break)
-          Assign([$beta$], [$beta times "bs".f times |omega_i dot arrow(n)|$ / bs.pdf])
-          Assign([specularBounce], [bs.estSpeculaire])
-          Assign([$#rayon("r")$], [CreerRayon(bs.$omega_i$)])
+        Assign(wo, $#r_dir$)
+        Assign(x1, $#r_ori$)
+        Assign("intersection", $"Intersection"(#r)$)
+        If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#r)$))
+
+        Assign(x2, $"intersection"."point"$)
+
+        Assign($L$, $"intersection".L_(e)(wo)$)
+        Assign(beta, $1$)
+
+        Comment([$epsilon > 0 "fixé."$])
+        While($beta>epsilon$, {
+          Comment([Éclairage direct (échantillonage de la lumière)])
+          Assign(p0, $p ~ PP_("lumières")$)
+          LineComment(Assign(wi, $normalize(p0-x2)$))[direction de $x2$ vers $p0$]
+
+          Assign(alphadirect, $p0. L_e (p0 -> x_1) f_s (p0 -> x1 -> x2) G(p0,x1)$)
+          Assign($L$, $L + T dot alphadirect \/ PP_("lumières")(p_0)$)
+
+          LineBreak
+          Assign(wi, $omega ~ PP_("bsdf")$)
+          Comment([$(x1,wi)$ : le rayon partant de $x1$ avec la direction $wi$])
+          Assign("intersection", $"Intersection"((x1,wi))$)
+          If($not"intersection"$, Break)
+          Assign(alphaindirect, $f_s (x0 -> x1 -> x2) G(x0,x1)$)
+          Comment([On convertie la probabilité en mesure d'aire :]) //TODO détailler mesure angle / aire
+          Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$) //TODO definir #n
+          Assign($T$, $T alphaindirect \/q$)
+
+          LineBreak
+
+          Comment([On continue le chemin.])
+          Assign($(x2,x1)$, $(x1, x0)$)
+          Assign(r, $(x1->x2)$)
         })
-        Return[$L$]
+
+        Return($L$)
       },
     )
   },
@@ -318,7 +369,7 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 + #block[Le photon mapping qui se base aussi sur une technique de lancer de rayon.
     Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une photon map.
     Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la photon map avec un algorithme des plus proches voisins.
-    Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par Shuang Zhao et son équipe (#shaung_zhao), nous en reparlerons dans la section dédiée.]
+    Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par Shuang Zhao et son équipe (#shuang_zhao), nous en reparlerons dans la section dédiée.]
 
 + #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
     De plus cet algorithme est non biaisé mais, malheureusement, à ce jour aucune technique de différentiation n'a été découverte.]
