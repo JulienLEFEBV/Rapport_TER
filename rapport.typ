@@ -181,6 +181,7 @@ C'est pour cela que des méthodes pour estimer cette intégrale ont été mises 
 
 == Par quadrature (Ray Tracing)
 
+<raytracing_def>
 #definition(title: "Rayon")[
   On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
 ]
@@ -203,11 +204,9 @@ Une méthode de ray tracing naïve de la marche aléatoire :
       {
         Assign("intersection", [Intersection($#rayon("r")$)])
         Comment[Cas où le rayon n'intersecte aucune surface]
-        If("Pas d'intersection", {
-          Assign([$L_e$], "0")
-          For([lumière $in$ Lumières Directionelles], Assign([$L_e$], [$L_e$ + lumière.$L_e\(#rayon("r"))$]))
-          Return[$L_e$]
-        })
+
+        If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#rayon("r"))$))
+
         Comment[Recupération de la surface intersectée et de son émission]
         Assign("surface", "intersection.surface")
         Assign([$omega_o$], [$-#rayon_dir("r")$])
@@ -271,7 +270,6 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
-
   $ G(x_n, x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
 
   où $VV (x_n, x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$
@@ -305,6 +303,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
 #let alphaindirect = $alpha_("indirecte")$
 #let normalize(v) = $#v/(|#v|)$
 #let n(x) = $scr(n)(#x)$
+<pathtracer_def>
 #algorithm-figure(
   "Path Tracer",
   vstroke: .5pt + luma(200),
@@ -356,7 +355,6 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
   },
 )
 
-//TODO Ajouter algo
 == Autres Méthodes
 
 De nombreuses autres méthodes existent pour résoudre l'équation du rendu et ont chacune leurs avantages mais aussi leurs inconvénients. Parmi celles-ci, on retrouve :
