@@ -73,14 +73,6 @@
   //For more customitation you can check the documentation. !! Enjoy :D !!
 )
 
-//===========Algorithmic style===============
-#let If = algorithmic.iflike.with(kw1: "si", kw2: "alors", kw3: "fin")
-#let While = algorithmic.iflike.with(kw1: "tant que", kw2: "faire", kw3: "fin")
-#let For = algorithmic.iflike.with(kw1: "pour", kw2: "faire", kw3: "fin")
-#let Else = algorithmic.iflike.with(kw1: "sinon", kw2: "", kw3: "fin", "")
-#let ElseIf = algorithmic.iflike.with(kw1: "sinon si", kw2: "alors", kw3: "fin")
-//! Ne fonctionne pas
-
 #set math.equation(numbering: "(1)", supplement: [éq.])
 #let no-num(content) = {
   math.equation(
@@ -106,8 +98,9 @@
 
 // Links
 #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]
+#let vk_guide = link("https://vkguide.dev/")[*VulkanGuide*]
 #let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
-#let rtvk = link("https://github.com/CorentinVaillant/RtVk")[*GitHub du projet*]
+#let ptvk(x) = link("https://github.com/CorentinVaillant/Vk-Path-Tracer")[#x]
 #let suisses = link(
   "https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo",
 )[*Monte Carlo Estimators for Differential Light Transport*]
@@ -142,7 +135,7 @@ Dans ce TER, nous nous sommes intéressés aux travaux de Cheng Zhang, Bailey Mi
 
 Pour effectuer ce TER, nous nous sommes aussi intéressés au ray tracing ainsi qu'au path tracing, notamment grâce à la série de livres #raytracing_in_one_weekend, dans le but d'acquérir les bases nécessaires à la compréhension du papier.
 
-Dans le cadre de ce travail, nous avons aussi implémenté un Path Tracer sur GPU avec Vulkan (#rtvk).
+Dans le cadre de ce travail, nous avons aussi tenté d'implanter un Path Tracer sur GPU avec Vulkan (#ptvk[*Github vers les projet*]).
 
 Nous allons introduire dans un premier temps le ray tracing ainsi que ses limites. Puis nous regarderons ce qu'est le Path Tracing  et comment il corrige les limites du Ray Tracing. Dans un troisième temps, nous parlerons du rendu différentiel et de la méthode proposée par Shuang Zhao et son équipe.
 Enfin nous finirons par regarder une autre approche à ce problème avec les travaux de Tizian Zeltner, Sébastien Speierer, Iliyan Georgiev et Wenzel Jakob (#suisses).
@@ -382,10 +375,71 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 
 == Autres Méthodes (Methode de l'EPFL)
 
-= Implementation du Path Tracer
+// implantation
+= Implantation des algorithme
 
-= Difficultées Rencontrées
+Afin de pouvoir comprendre les algorithmes étudiés, nous avons implémenté un ray tracer et un path tracer.
+
+== Premier ray tracer
+
+Nous avons donc commencé par suivre une série de tutoriels : #raytracing_in_one_weekend, écrit principalement par _Peter Shirley_.\
+Le but de ces tutoriels était d'implanter, en `C++`, un premier ray tracer.
+
+
+Cela nous à permis de comprendre le ray tracing de façon concrète, nous avons écrit plusieurs abstractions (formes, matériaux, textures, caméra, _ect_..), qui nous ont ensuite permis d'appliquer les mathématiques de l'algorithme.
+
+Cette première implantation souffrait de la faible parallélisation du `CPU`. En effet, les temps de rendu pouvaient être très longs.
+
+#let rtowe_caption = "Scène rendue à partir du ray tracer implanté, le temps de rendu est d'environ 3 minutes (CPU $3.5 GHz$)."
+#let rtowe = image("Images/Rt_series/rtowe.png", width: 100%, alt: rtowe_caption)
+
+#figure(rtowe, caption: rtowe_caption)
+
+== Autres implantation `CPU`
+
+La suite des tutoriels de _Peter Shirley_ nous a amenés à construire des rendus plus élaborés.
+Nous avons donc ajouté la possibilité d'avoir des matériaux volumétriques et des textures.
+
+*TODO IMG VOLUMÉTRIQUE && textures*
+
+Afin d'accélérer le processus, nous avons implanté divers moyens d'accélérer le processus, comme des `BVH` (Bounding Volume Hierarchy, comprendre hiérarchie des volumes englobants), et des méthodes de Monte Carlo plus efficaces, par exemple, au lieu d'opérer la quadrature sur une marche aléatoire à direction uniforme, nous tirons une direction en fonction de la distribution de la `BRDF`.
+
+Au fur et à mesure, le tutoriel nous amène à construire un path tracer, les nouvelles directions sont donc tirées en fonction du placement des lumières, et l'on passe d'un programme récursif à terminal-récursif.
+
+De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles que le chargement de maillage et le multi-threading.
+*TODO add mesh*
+
+== Passage sur GPU
+
+Pour la suite nous avons décidé d'utiliser `Vulkan` pour une implantation sur `GPU`.
+`Vulkan` est une spécification proposée par _Khronos Group_ (qui propose aussi `OpenGL`), qui a vocation à remplacer `OpenGL`.
+`Vulkan` nous permet d'avoir un grand contrôle sur la carte graphique, mais comme le dit l'adage : "Un grand pouvoir implique de grandes responsabilités", la spécification est donc dure à prendre en main, avec un débogage compliqué, et une quantité de code à écrire conséquente.\
+Afin de nous aider, nous avons encore une fois suivi ce tutoriel : #vk_guide, qui nous a permis d'implanter un simple moteur graphique de rasterization.\
+Beaucoup d'abstractions utilisées dans le tutoriel ont été réutilisées par la suite.
+
+Une fois `Vulkan` appréhendé, nous avons fait notre premier ray tracer sur `GPU`, bien que rudimentaire, ce dernier était beaucoup plus rapide que les implantations sur `CPU`.
+
+#let gpu_raytrace_img_caption = "Scène rendue à partir du ray tracer fait sur `Vulkan`, rendu en temps réel (carte graphique intégrée sur un CPU)."
+#let gpu_raytrace_img = image(
+  "Images/Vulkan/first rt.png",
+  width: 50%,
+  alt: "Deux balles, on peut voir une réflexion très prononcée sur les objets.",
+)
+
+#figure(
+  gpu_raytrace_img,
+  caption: gpu_raytrace_img_caption,
+)
+
+De plus, nous avons utilisé le langage de shader #link("https://shader-slang.org/")[*Slang*], un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
+
+Malheureusement, le temps nous a manqué, l'implantation du ray tracer sur `Vulkan` a pris plus de temps que prévu, et la complexité des mathématiques utilisées dans l'algorithme du path tracer nous a ralentis. Le path tracer que nous voulions implémenter n'a donc pas pu être fini à temps.\
+Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'implantation, pour à terme, y inclure les travaux de _Shuang Zhao_.
+
+Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-= Bibliographie
+= Annexe
+
+== Bibliographie
