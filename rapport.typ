@@ -127,6 +127,9 @@
 #let rayon(r) = $arrow(""_dot#r)$
 #let rayon_dir(r) = $arrow(""_dot#r).arrow(d)$
 #let rayon_ori(r) = $arrow(""_dot#r).o$
+#let mat_space = $cal(B)$
+#let mouvement = $Chi$
+#let trajectoire = $cal(T)$
 
 = Introduction
 
@@ -221,14 +224,14 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         If([$f_(cos) = 0$], Return[$L_e$])
         Comment([Appel récursif, ($1/(4pi)$ : Probabilité de tiré une direction.)])
         // Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
-        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?
+        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?  C'est mieux comme ça
         Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4 pi))$]
       },
     )
   },
 )
 
-// @Julien, pense tu cette section utiles ?
+// @Julien, pense tu cette section utiles ? Ui
 Généralement, les implémentation du lancer de rayon son avec de meilleur moyen pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleur convergence.
 
 //TODO mettre comparaison
@@ -266,7 +269,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
-  //@Julien *> j'aurais peut être mis sensibilité ?
+  //@Julien *> j'aurais peut être mis sensibilité ? Peut être
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
@@ -379,6 +382,29 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 == La Méthode Naïve
 
 == La Méthode Etudiée (Méthode de l'UC)
+
+Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
+
+//TODO : à retaper jsp c'est pas ouf j'ai l'impression tu en penses quoi @Corentin ?
+
+#definition(title: "Configuration de référence, mouvement et déformation")[
+  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence. 
+  On appelle une déformation de #mat_space une fonction injective différentiable de #mat_space sur une surface #ensemble_surfaces.
+  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces. 
+  De plus nous pouvons remarquer que si on fixe un paramètre $pi in RR$, alors $#mouvement\(dot,pi)$ est une déformation de #mat_space.
+]
+ 
+#definition(title : "Surface évoluante, carte de référence et trajectoire")[
+  Pour un mouvement #mouvement et un paramètre $pi$, on appelle surface évoluante l'image $#ensemble_surfaces\(pi) := {#mouvement\(p,pi) : p in #mat_space} in RR^3$ de la fonction $#mouvement\(p,pi)$.
+  De plus, comme cette fonction est injective, on peut définir une fonction inverse sur son image $P(dot,pi) : #ensemble_surfaces\(pi) -> #mat_space$ que l'on appellera carte de référence.
+  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in  #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
+]
+
+#definition(title : "Espace des matériaux et espace des position")[
+  On appellera $p in #mat_space$ un point de matériau et $x in #ensemble_surfaces\(pi)$ un point de position.
+  Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
+  On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
+]
 
 == Autres Méthodes (Methode de l'EPFL)
 
