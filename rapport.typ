@@ -113,6 +113,7 @@
   "https://graphics.stanford.edu/papers/metro/metro.pdf",
 )[*Metropolis Light Transport*]
 #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
+#let reynolds = link("https://academicweb.nd.edu/~powers/ame.20231/reynolds1903.pdf")[*The Sub-Mechanics of the Universe*]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -125,6 +126,11 @@
 #let mouvement = $Chi$
 #let trajectoire = $cal(T)$
 #let extended_boundary(func,para) = $overline(partial #ensemble_surfaces)\[#func]\(#para)$
+#let vel_loc = $v$
+#let vel_scal = $V$
+#let vel_tan = $#vel_loc _("tan")$
+#let norm_field = $scr(cal(n))$
+#let x_hat = $bold(hat(x))$
 
 = Introduction
 
@@ -136,14 +142,14 @@ Son utilité ne se limite pas qu'au rendu, il possède aussi des applications da
 Le rendu différentiel a une communauté de recherche très active.
 En effet ce domaine est très challengeant parce qu'à ce jour aucun algorithme efficace n'introduisant pas de biais n'a été découvert. Cela est notamment dû au fait de l'absence d'estimateurs de Monte Carlo efficaces.
 
-Dans ce TER, nous nous sommes intéressés aux travaux de Cheng Zhang, Bailey Miller, Kai Yan, Ioannis Gkioulekas et Shuang Zhao (#shuang_zhao) qui proposent une solution sans biais à ce problème basée sur la séparation en deux sous-problèmes.
+Dans ce TER, nous nous sommes intéressés aux travaux de _Cheng Zhang_, _Bailey Miller_, _Kai Yan_, _Ioannis Gkioulekas_ et _Shuang Zhao_ (#shuang_zhao) qui proposent une solution sans biais à ce problème basée sur la séparation en deux sous-problèmes.
 
 Pour effectuer ce TER, nous nous sommes aussi intéressés au ray tracing ainsi qu'au path tracing, notamment grâce à la série de livres #raytracing_in_one_weekend, dans le but d'acquérir les bases nécessaires à la compréhension du papier.
 
 Dans le cadre de ce travail, nous avons aussi tenté d'implanter un Path Tracer sur GPU avec Vulkan (#ptvk[*Github vers les projet*]).
 
-Nous allons introduire dans un premier temps le ray tracing ainsi que ses limites. Puis nous regarderons ce qu'est le Path Tracing  et comment il corrige les limites du Ray Tracing. Dans un troisième temps, nous parlerons du rendu différentiel et de la méthode proposée par Shuang Zhao et son équipe.
-Enfin nous finirons par regarder une autre approche à ce problème avec les travaux de Tizian Zeltner, Sébastien Speierer, Iliyan Georgiev et Wenzel Jakob (#suisses).
+Nous allons introduire dans un premier temps le ray tracing ainsi que ses limites. Puis nous regarderons ce qu'est le Path Tracing  et comment il corrige les limites du Ray Tracing. Dans un troisième temps, nous parlerons du rendu différentiel et de la méthode proposée par _Shuang Zhao_ et son équipe.
+Enfin nous finirons par regarder une autre approche à ce problème avec les travaux de _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ (#suisses).
 
 = Le Rendu
 
@@ -233,7 +239,7 @@ Généralement, les implémentation du lancer de rayon son avec de meilleur moye
 
 == Le Path Tracing
 
-L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par Veach en 1997 notamment dans son papier #Veach_equation_du_rendu_chemin.
+L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997 notamment dans son papier #Veach_equation_du_rendu_chemin.
 
 #definition(title: "Chemin de lumière et espace des chemins")[
   Soit #ensemble_surfaces l'ensemble des surfaces des objets de notre scène.
@@ -265,7 +271,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   $ I = #pt_eq(xbar) $<équation_rendu_chemins>
   Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
-  où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
+  où $W_e$ est la sensibilité du capteur //Jsp si c'est le bon nom en français ? TODO A voir
   //@Julien *> j'aurais peut être mis sensibilité ? Peut être
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
@@ -278,7 +284,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   où $omega_n$ représente le vecteur unitaire partant $x_n$ et pointant vers $x_(n+1)$.
 ]
 
-Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de Shung Zhao et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
+Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de _Shung Zhao_ et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
 En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bord (ou boundary).
 
 
@@ -367,7 +373,7 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 + #block[Le photon mapping qui se base aussi sur une technique de lancer de rayon.
     Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une photon map.
     Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la photon map avec un algorithme des plus proches voisins.
-    Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par Shuang Zhao et son équipe (#shuang_zhao), nous en reparlerons dans la section dédiée.]
+    Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par _Shuang Zhao_ et son équipe (#shuang_zhao), nous en reparlerons dans la section dédiée.]
 
 + #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
     De plus cet algorithme est non biaisé mais, malheureusement, à ce jour aucune technique de différentiation n'a été découverte.]
@@ -403,33 +409,7 @@ Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc
 
 == La Méthode Etudiée (Méthode de l'UC)
 
-#let x_hat = $bold(hat(x))$
-#let x_hat_def = [
-  Pour une trajectoire $cal(T)$ nous pouvons définire un paramètrisation local, proche de $(x, pi) in cal(T)$.
-  On fixe $hat(x)(xi, pi')$, qui pour un ouvert $cal(O) in RR^2$ :
-  - $#x_hat (cal(O), pi) subset #ensemble_surfaces (pi)$
-  - $forall pi'$ proche de $pi$ : $#x_hat (dot, pi')$ est $cal(C)^1$ et injectif.
-  - $forall xi in cal(O) : #x_hat (xi, dot)$ est $cal(C)^1$ sur un voisinage de $pi$.
-]
-
-#let vel_loc = $v$
-#let vel_scal = $V$
-#let vel_tan = $#vel_loc _("tan")$
-#let norm_field = $scr(cal(n))$
-
-#let vel_def = [
-  Avec $x in cal(M)(pi)$ et la paramètrisation #x_hat, il existe un unique $xi in cal(O)$ qui satisfait $#x_hat (xi, pi) = x$.
-  On note $xi$ comme étant les coordonées local de $x$.\
-  On peut donc définir la vitesse local de $x$ comme :
-
-  #figure($#vel_loc (x, pi) = (partial #x_hat (xi, pi'))/(partial pi') |_(pi' = pi)$)
-
-  Et donc en utilisant $cal(M)(pi)$ orienté par un champs de vecteur normaux $#norm_field (x, pi)$, on défini $#vel_scal = #vel_loc dot #norm_field$ et
-  $#vel_tan = #vel_loc - #vel_scal #norm_field$, respectivement, la vitesse scalaire local et la vitesse tangentielle local.
-
-]
-
-Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
+Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
 
 //TODO : à retaper jsp c'est pas ouf j'ai l'impression tu en penses quoi @Corentin ?
 
@@ -451,31 +431,79 @@ Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang
   Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
   On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
 ]
-Pour les définitions nous allons poser $phi\(x,pi)$ un champ de position scalaire sur $#ensemble_surfaces\(pi)$.
 
-#definition(title : "Derivée de scène")[
+#definition(title : "Paramétrisation local")[
+  Pour une trajectoire $cal(T)$ nous pouvons définir une paramétrisation locale, proche de $(x, pi) in cal(T)$.
+  On fixe $hat(x)(xi, pi')$, qui pour un ouvert $cal(O) in RR^2$ :
+  - $#x_hat (cal(O), pi) subset #ensemble_surfaces (pi)$
+  - $forall pi'$ proche de $pi$ : $#x_hat (dot, pi')$ est $cal(C)^1$ et injectif.
+  - $forall xi in cal(O) : #x_hat (xi, dot)$ est $cal(C)^1$ sur un voisinage de $pi$.
+]
+
+#definition(title : "Vitesse")[
+  Avec $x in cal(M)(pi)$ et la paramétrisation #x_hat, il existe un unique $xi in cal(O)$ qui satisfait $#x_hat (xi, pi) = x$.
+  On note $xi$ comme étant les coordonées local de $x$.\
+  On peut donc définir la vitesse local de $x$ comme :
+
+  $ #vel_loc (x, pi) = (partial #x_hat (xi, pi'))/(partial pi') |_(pi' = pi) $ <vitesse_loc>
+
+  Et donc en utilisant $cal(M)(pi)$ orienté par un champ de vecteurs normaux $#norm_field (x, pi)$, on définit $#vel_scal = #vel_loc dot #norm_field$ et
+  $#vel_tan = #vel_loc - #vel_scal #norm_field$, respectivement, la vitesse scalaire locale et la vitesse tangentielle locale.
+]
+
+Pour les définitions, nous allons poser $phi\(x,pi)$ un champ de position scalaire sur $#ensemble_surfaces\(pi)$.
+
+#definition(title : "Dérivée de scène")[
   $phi$ admet une dérivée de scène de la forme :
   $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi,pi'),pi') |_(pi'=pi) $ <derivée_scene>
   Elle admet aussi une forme normalisée de cette dérivée :
-  $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_scene>
+  $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_norm_scene>
 ]
 
 #definition(title : "Courbes de discontinuité et bordure étendue")[
-  La foction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble des ces courbes de discontinuité. On appellera #extended_boundary($phi$,$pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité. 
+  La fonction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble de ces courbes de discontinuité. On appellera #extended_boundary($phi$,$pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité. 
 ]
 
 En utilisant la relation de transport venant de la mécanique des fluides par _Cermelli_ (#mecha_fluide) on peut obtenir :
 
 $ d / (d pi) integral_#ensemble_surfaces phi d A = I_"intérieur" + I_"bordure" $ <int_interieur_et_bordure>
 Avec $ I_"intérieur" = integral_#ensemble_surfaces (phi^square - phi kappa V)d A $
-$ I_"bordure"= integral_overline(partial #ensemble_surfaces) Delta phi V_overline(partial #ensemble_surfaces)d A $
-Avec $kappa$ la courbature totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vistesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x,pi)$ le prolongement défini comme si dessous :
+$ I_"bordure"= integral_overline(partial #ensemble_surfaces) Delta phi V_overline(partial #ensemble_surfaces)d cal(l) $
+Avec $cal(l)$ la mesure de la longueur des courbes, $kappa$ la courbure totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vitesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x,pi)$ le prolongement défini comme ci-dessous :
 $ Delta phi(x,pi) := cases(
   phi(x,pi) "si" x in partial#ensemble_surfaces\(pi\),
   phi^-(x,pi) - phi^+(x,pi) "si" x in Delta#ensemble_surfaces\(pi\)
 )
- $ 
+$ 
+Nous pouvons, dans le cas particulier où #ensemble_surfaces est indépendant des paramètres de la scène, simplifier cette relation (@int_interieur_et_bordure) à la relation de transport standard de _Reynolds_ (#reynolds) : 
+$ d / (d pi) integral_#ensemble_surfaces phi d A = integral_#ensemble_surfaces dot(phi) d A + integral_(Delta#ensemble_surfaces) Delta phi V_(Delta#ensemble_surfaces)d cal(l) $ <int_avec_reynolds>
 
+Nous allons par la suite essayer d'appliquer cette relation (@int_avec_reynolds) à l'équation du rendu (@équation_rendu_chemins). Nous allons d'abord nous concentrer sur le cas de l'éclairement direct. Pour ce faire, nous allons nous placer dans une configuration où une surface $#ensemble_surfaces _"obj"$ est éclairée par une surface évoluante $cal(L)\(pi)$. Dans cette configuration pour $y,y' in  #ensemble_surfaces _"obj"$ on a :
+
+$ I_"direct" = integral_cal(L) f_"direct"\(x) d A(x) $ <eclairement_direct>
+
+avec $f_"direct"\(x) := L_e (x -> y) f_s (x -> y -> y') G(x <-> y)$
+
+Pour simplifier la dérivation, nous allons poser les axiomes suivants :
+
+*A.1* Pour tout $x in cal(L)\(pi)$ il existe une paramétrisation tel que x possède une vitesse tangentielle nulle.
+
+*A.2* $L_e\(x->y)f_s\(x->y->y')$ est continue par rapport à $x$ lorsque $y,y' in #ensemble_surfaces _"obj"$ sont fixées.
+
+Sous ces deux axiomes en appliquant @int_interieur_et_bordure à $f_"direct"$ on obtient :
+
+$ (partial I_"direct") / (partial pi) = integral_cal(L) |dot(f)_"direct" - f_"direct" kappa V| d A + integral_overline(partial cal(L)) Delta f_"direct" V_overline(partial cal(L)) d cal(l) $ <diff_direct_spacial>
+
+En effet, grâce à l'axiome *A.1* nous avons que $(f_"direct")^square = dot(f)_"direct"$. De plus, sous l'effet de l'axiome *A.2* nous avons que : 
+$ Delta f_"direct" = L_e (x -> y) f_s (x -> y -> y') Delta G(x <-> y) $ <delta_f_direct>
+
+Un des problèmes de cette relation (@diff_direct_spacial) est qu'elle est très couteuse à estimer dans des scènes complexes. C'est pour cela que nous allons nous placer dans l'espace des matériaux à l'aide d'un changement de variable. Nous obtenons ainsi :
+$ I_"direct" = integral_cal(B) hat(f)_"direct"\(p) d A(p) $ <eclairement_direct_material>
+avec $hat(f)_"direct" := f_"direct"\(x)J(p)$ avec $x = #mouvement\(p,pi)$ et $J$ le déterminant de la Jacobienne du changement de variable défini comme $J(p) = |d A(x) \/ d A(p)|$.
+
+
+Comme nous intégrons sur la configuration de référence #mat_space qui ne dépend pas du paramètre $pi$ nous pouvons appliquer la relation de _Reynolds_ (@int_avec_reynolds) ce qui nous donne :
+$ (partial I_"direct") / (partial pi) = integral_#mat_space (hat(f)_"direct")^dot d A + integral_(Delta #mat_space) Delta hat(f)_"direct" V_(Delta #mat_space) d cal(l) $ <diff_direct_material>
 
 
 == Autres Méthodes (Methode de l'EPFL)
