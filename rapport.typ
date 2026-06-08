@@ -398,6 +398,32 @@ Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc
 
 == La Méthode Etudiée (Méthode de l'UC)
 
+#let x_hat = $bold(hat(x))$
+#let x_hat_def = [
+  Pour une trajectoire $cal(T)$ nous pouvons définire un paramètrisation local, proche de $(x, pi) in cal(T)$.
+  On fixe $hat(x)(xi, pi')$, qui pour un ouvert $cal(O) in RR^2$ :
+  - $#x_hat (cal(O), pi) subset #ensemble_surfaces (pi)$
+  - $forall pi'$ proche de $pi$ : $#x_hat (dot, pi')$ est $cal(C)^1$ et injectif.
+  - $forall xi in cal(O) : #x_hat (xi, dot)$ est $cal(C)^1$ sur un voisinage de $pi$.
+]
+
+#let vel_loc = $v$
+#let vel_scal = $V$
+#let vel_tan = $#vel_loc _("tan")$
+#let norm_field = $scr(cal(n))$
+
+#let vel_def = [
+  Avec $x in cal(M)(pi)$ et la paramètrisation #x_hat, il existe un unique $xi in cal(O)$ qui satisfait $#x_hat (xi, pi) = x$.
+  On note $xi$ comme étant les coordonées local de $x$.\
+  On peut donc définir la vitesse local de $x$ comme :
+
+  #figure($#vel_loc (x, pi) = (partial #x_hat (xi, pi'))/(partial pi') |_(pi' = pi)$)
+
+  Et donc en utilisant $cal(M)(pi)$ orienté par un champs de vecteur normaux $#norm_field (x, pi)$, on défini $#vel_scal = #vel_loc dot #norm_field$ et
+  $#vel_tan = #vel_loc - #vel_scal #norm_field$, respectivement, la vitesse scalaire local et la vitesse tangentielle local.
+
+]
+
 == Autres Méthodes (Methode de l'EPFL)
 
 // implantation
