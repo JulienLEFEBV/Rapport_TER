@@ -243,19 +243,21 @@ L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlev
 
 En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins, on obtient:
 
+#let xbar = chemin
+#let dmu(x) = $d mu(#x)$
+#let dmu_def = $product^(N)_(n=0) d A(x_n)$
+#let We(x, y) = $W_(e)(#x -> #y)$
+#let g(z, x, wn) = $g(#z : #x, #wn)$
+#let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n, x_(n+1))$
+#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
+#let G_def = $VV(x_n, x_(n+1))G_0(x_n, x_(n+1))$
+#let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
+
+#let pt_eq(x) = $integral_#espace_chemins f(#x) dmu(#xbar)$
+
 #definition(title: "Équation du rendu sur l'espace des chemins")[
 
-  #let xbar = chemin
-  #let dmu(x) = $d mu(#x)$
-  #let dmu_def = $product^(N)_(n=0) d A(x_n)$
-  #let We(x, y) = $W_(e)(#x -> #y)$
-  #let g(z, x, wn) = $g(#z : #x, #wn)$
-  #let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n, x_(n+1))$
-  #let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
-  #let G_def = $VV(x_n, x_(n+1))G_0(x_n, x_(n+1))$
-  #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
-
-  $ I = integral_#espace_chemins f(#chemin) dmu(#xbar) $ <équation_rendu_chemins>
+  $ I = #pt_eq(xbar) $<équation_rendu_chemins>
   Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
@@ -370,6 +372,29 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 = La Différentiation
 
 == La Méthode Naïve
+
+Pour obtenir une aproximation, nous pourrions utilisé la méthode la différence fini.
+
+Pour toute fonction continue $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
+
+$h : x_0 + h in V$ \
+$f(x_0 + h) = sum_(n in NN) (f^((n)) (x_0))/(n!) h^n$ \
+$= f(x_0) + f'(x_0)h + R(x_0 + h)$ : Avec $R(x_0 + h)$ le reste.\
+$<=> f(x_0 + h) / h = f(x_0)/h + f'(x_0) + R(x_0 + h)/h$ \
+$<=> f'(x_0) = ( f(x_0 + h) - f(x_0)) /h - R(x_0 + h)/h$ \
+En assumant $R(x_0 + h)$ suffisament petit, nous avons donc :\
+$f'(x_0) tilde.eq ( f(x_0 + h) - f(x_0)) /h$
+
+Nous pouvons donc appliqué cette méthodes, en utilisant $h$ assez petit.\
+Ici $pi in RR$ représentes un paramètre de la scène. On notera toutes les fonctions dépendant de la scène à l'aide de la syntaxe suivantes $phi(pi : x_1, ... x_k)$, où $phi$ est une fonction quelconque dépendant des paramètres de la scène. \
+Nous avons donc :
+
+$partial/(partial pi) #pt_eq($pi: #xbar$) tilde.eq (#pt_eq($pi: #xbar$) - #pt_eq($pi - h: #xbar$)) / h$
+
+La méthode est donc facile à comprendre et à implanter, mais elle soufre de deux gros inconvénients.
+Premièrement, la stabilité numérique des nombre à virgule flotantes, en effet, s'il on prend $h$ trop petit, les imprécisions dans le calcul deviendrons de plus en plus importante.
+
+Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc le doublage du temps de calcul.
 
 == La Méthode Etudiée (Méthode de l'UC)
 
