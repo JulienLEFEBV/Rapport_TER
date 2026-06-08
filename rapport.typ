@@ -82,7 +82,6 @@
   )
 }
 
-
 #let mathcounter = rich-counter(
   identifier: "mathblocks",
   inherited_levels: 1,
@@ -97,24 +96,41 @@
 )
 
 // Links
-#let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]
-#let vk_guide = link("https://vkguide.dev/")[*VulkanGuide*]
-#let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
-#let ptvk(x) = link("https://github.com/CorentinVaillant/Vk-Path-Tracer")[#x]
-#let suisses = link(
-  "https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo",
-)[*Monte Carlo Estimators for Differential Light Transport*]
-#let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
-#let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
-#let VCM = link("https://www.iliyan.com/publications/ImplementingVCM/")[*Vertex Connection and Merging*]
-#let cone = link("https://en.wikipedia.org/wiki/Cone_tracing")[*Cone Tracing*]
-#let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
-#let Veach_equation_du_rendu_chemin = link(
-  "https://graphics.stanford.edu/papers/metro/metro.pdf",
-)[*Metropolis Light Transport*]
-#let mecha_fluide = link(
-  "https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf",
-)[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
+// #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]s
+#let raytracing_in_one_weekend = [*Raytracing in one weekend* @RayTracingInOneWeekend]
+#let raytracing_serie = [*Ray Tracing in One Weekend — The Book Series* @RayTracingInOneWeekend @RayTracingTheNextWeek @RayTracingTheRestOfYourLife]
+// #let vk_guide = link("https://vkguide.dev/")[*VulkanGuide*]
+#let vk_guide = [*VulkanGuide* @VkGuide]
+// #let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
+#let shuang_zhao = [*Path-Space Differentiable Rendering* @PathSpaceDifferentiableRendering]
+
+// #let suisses = link("https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo")[*Monte Carlo Estimators for Differential Light Transport*]
+#let suisses = [*Monte Carlo Estimators for Differential Light Transport* @Zeltner2021MonteCarlo]
+
+// #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
+#let equation_rendu = [*Page Wikipedia Equation du Rendu* @wiki:ÉquationDuRendu]
+
+// #let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
+#let metropolis = [*Metropolis Ligth Transport* @wiki:Metropolis_light_transport]
+
+// #let VCM = link("https://www.iliyan.com/publications/ImplementingVCM/")[*Vertex Connection and Merging*]
+#let VCM = [*Vertex Connection and Merging* @Georgiev:ImplementingVCM]
+
+// #let cone = link("https://en.wikipedia.org/wiki/Cone_tracing")[*Cone Tracing*]
+#let cone = [*Cone Tracing* @wiki:Cone_tracing]
+
+// #let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
+#let splating = [*Gaussian Splating* @wiki:Gaussian_splatting]
+
+// #let Veach_equation_du_rendu_chemin = link("https://graphics.stanford.edu/papers/metro/metro.pdf")[*Metropolis Light Transport*]
+#let Veach_equation_du_rendu_chemin = [*Metropolis Light Transport* @veach:MetropolisLightTransport]
+
+// #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
+#let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
+
+#let slang = [*Slang* @SlangDoc]
+
+#let ptvk(x) = link("https://github.com/Coren tinVaillant/Vk-Path-Tracer")[#x]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -674,7 +690,7 @@ Une fois `Vulkan` appréhendé, nous avons fait notre premier ray tracer sur `GP
   caption: gpu_raytrace_img_caption,
 )
 
-De plus, nous avons utilisé le langage de shader #link("https://shader-slang.org/")[*Slang*], un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
+De plus, nous avons utilisé le langage de shader #slang, un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
 
 Malheureusement, le temps nous a manqué, l'implantation du ray tracer sur `Vulkan` a pris plus de temps que prévu, et la complexité des mathématiques utilisées dans l'algorithme du path tracer nous a ralentis. Le path tracer que nous voulions implémenter n'a donc pas pu être fini à temps.\
 Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'implantation, pour à terme, y inclure les travaux de _Shuang Zhao_.
@@ -687,4 +703,10 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Annexe
 
-== Bibliographie
+
+#bibliography("bib.bib", style: "ieee")
+
+/* livres
+auteur, "titre", ed, date
+
+_nom site_, "titre", auteur (date). URL */
