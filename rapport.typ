@@ -112,7 +112,9 @@
 #let Veach_equation_du_rendu_chemin = link(
   "https://graphics.stanford.edu/papers/metro/metro.pdf",
 )[*Metropolis Light Transport*]
-#let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
+#let mecha_fluide = link(
+  "https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf",
+)[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -124,7 +126,7 @@
 #let mat_space = $cal(B)$
 #let mouvement = $Chi$
 #let trajectoire = $cal(T)$
-#let extended_boundary(func,para) = $overline(partial #ensemble_surfaces)\[#func]\(#para)$
+#let extended_boundary(func, para) = $overline(partial #ensemble_surfaces)\[#func]\(#para)$
 
 = Introduction
 
@@ -330,7 +332,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
           LineComment(Assign(wi, $normalize(p0-x2)$))[direction de $x2$ vers $p0$]
 
           Assign(alphadirect, $p0. L_e (p0 -> x_1) f_s (p0 -> x1 -> x2) G(p0,x1)$)
-          Assign($L$, $L + T dot alphadirect \/ PP_("lumières")(p_0)$)
+          Assign($L$, $L + beta alphadirect \/ PP_("lumières")(p_0)$)
 
           LineBreak
           Assign(wi, $omega ~ PP_("bsdf")$)
@@ -340,7 +342,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
           Assign(alphaindirect, $f_s (x0 -> x1 -> x2) G(x0,x1)$)
           Comment([On convertie la probabilité en mesure d'aire :]) //TODO détailler mesure angle / aire
           Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$) //TODO definir #n
-          Assign($T$, $T alphaindirect \/q$)
+          Assign($beta$, $beta alphaindirect \/q$)
 
           LineBreak
 
@@ -434,34 +436,34 @@ Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang
 //TODO : à retaper jsp c'est pas ouf j'ai l'impression tu en penses quoi @Corentin ?
 
 #definition(title: "Configuration de référence, mouvement et déformation")[
-  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence. 
+  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence.
   On appelle une déformation de #mat_space une fonction injective différentiable de #mat_space sur une surface #ensemble_surfaces.
-  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces. 
+  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces.
   De plus nous pouvons remarquer que si on fixe un paramètre $pi in RR$, alors $#mouvement\(dot,pi)$ est une déformation de #mat_space.
 ]
- 
-#definition(title : "Surface évoluante, carte de référence et trajectoire")[
+
+#definition(title: "Surface évoluante, carte de référence et trajectoire")[
   Pour un mouvement #mouvement et un paramètre $pi$, on appelle surface évoluante l'image $#ensemble_surfaces\(pi) := {#mouvement\(p,pi) : p in #mat_space} in RR^3$ de la fonction $#mouvement\(p,pi)$.
   De plus, comme cette fonction est injective, on peut définir une fonction inverse sur son image $P(dot,pi) : #ensemble_surfaces\(pi) -> #mat_space$ que l'on appellera carte de référence.
-  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in  #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
+  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
 ]
 
-#definition(title : "Espace des matériaux et espace des position")[
+#definition(title: "Espace des matériaux et espace des position")[
   On appellera $p in #mat_space$ un point de matériau et $x in #ensemble_surfaces\(pi)$ un point de position.
   Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
   On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
 ]
 Pour les définitions nous allons poser $phi\(x,pi)$ un champ de position scalaire sur $#ensemble_surfaces\(pi)$.
 
-#definition(title : "Derivée de scène")[
+#definition(title: "Derivée de scène")[
   $phi$ admet une dérivée de scène de la forme :
-  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi,pi'),pi') |_(pi'=pi) $ <derivée_scene>
+  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi, pi'),pi') |_(pi'=pi) $ <derivée_scene>
   Elle admet aussi une forme normalisée de cette dérivée :
   $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_scene>
 ]
 
-#definition(title : "Courbes de discontinuité et bordure étendue")[
-  La foction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble des ces courbes de discontinuité. On appellera #extended_boundary($phi$,$pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité. 
+#definition(title: "Courbes de discontinuité et bordure étendue")[
+  La foction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble des ces courbes de discontinuité. On appellera #extended_boundary($phi$, $pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité.
 ]
 
 En utilisant la relation de transport venant de la mécanique des fluides par _Cermelli_ (#mecha_fluide) on peut obtenir :
@@ -469,13 +471,141 @@ En utilisant la relation de transport venant de la mécanique des fluides par _C
 $ d / (d pi) integral_#ensemble_surfaces phi d A = I_"intérieur" + I_"bordure" $ <int_interieur_et_bordure>
 Avec $ I_"intérieur" = integral_#ensemble_surfaces (phi^square - phi kappa V)d A $
 $ I_"bordure"= integral_overline(partial #ensemble_surfaces) Delta phi V_overline(partial #ensemble_surfaces)d A $
-Avec $kappa$ la courbature totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vistesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x,pi)$ le prolongement défini comme si dessous :
-$ Delta phi(x,pi) := cases(
-  phi(x,pi) "si" x in partial#ensemble_surfaces\(pi\),
-  phi^-(x,pi) - phi^+(x,pi) "si" x in Delta#ensemble_surfaces\(pi\)
-)
- $ 
+Avec $kappa$ la courbature totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vistesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x, pi)$ le prolongement défini comme si dessous :
+$
+  Delta phi(x, pi) := cases(
+    phi(x, pi) "si" x in partial#ensemble_surfaces\(pi\),
+    phi^-(x,pi) - phi^+(x,pi) "si" x in Delta#ensemble_surfaces\(pi\)
+  )
+$
 
+#let alphadotdirect = $dot(alpha)_("directe")$
+#let alphadotindirect = $dot(alpha)_("indirecte")$
+
+#let interior_intr_algo = [
+  #algorithm-figure(
+    "Differentiation du Path Tracer : intérieur",
+    vstroke: .5pt + luma(200),
+    {
+      import algorithmic: *
+      Procedure(
+        [$"PT_diff_intérieur"$],
+        [Rayon $#r$],
+        {
+          Assign(wo, $#r_dir$)
+          Assign(x1, $#r_ori$)
+          Assign("intersection", $"Intersection"(#r)$)
+          If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#r)$))
+
+          Assign(x2, $"intersection"."point"$)
+
+          Assign($(L, dot(L))$, $("intersection".L_(e)(wo), ["intersection".L_(e)(wo)]^dot)$)
+          Assign($beta, dot(beta)$, $(1, 0)$)
+
+          Comment([$epsilon > 0 "fixé."$])
+          While($beta>epsilon$, {
+            Comment([Éclairage direct (échantillonage de la lumière)])
+            Assign(p0, $p ~ PP_("lumières")$)
+            // LineComment(Assign(wi, $normalize(p0-x2)$))[direction de $x2$ vers $p0$] //! useless
+            Assign($x0$, $#mouvement (p0, pi)$)
+
+            Assign($alphadirect$, $p0. L_e (p0 -> x_1) f_s (p0 -> x1 -> x2) G(p0,x1) J(p0)$)
+            Assign($alphadotdirect$, $[p0. L_e (p0 -> x_1) f_s (p0 -> x1 -> x2) G(p0,x1) J(p0)]^dot$)
+            Assign($L$, $L + beta alphadirect \/ PP_("lumières")(p_0)$)
+            Assign($dot(L)$, $dot(L) + (beta alphadotdirect + dot(beta) alphadirect ) \/ PP_("lumières")(p_0)$)
+
+            LineBreak
+            Assign(wi, $omega ~ PP_("bsdf")$)
+            Comment([$(x1,wi)$ : le rayon partant de $x1$ avec la direction $wi$])
+            Assign("intersection", $"Intersection"((x1,wi))$)
+            If($not"intersection"$, Break)
+            Assign(alphaindirect, $f_s (x0 -> x1 -> x2) G(x0,x1)$)
+            Assign(alphadotindirect, $[f_s (x0 -> x1 -> x2) G(x0,x1)]^dot$)
+            Comment([On convertie la probabilité en mesure d'aire :])
+            Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$)
+            Assign($beta$, $beta alphaindirect \/q$)
+            Assign($dot(beta)$, $(beta alphadotindirect + dot(beta) alphaindirect) \/q$)
+
+            LineBreak
+
+            Comment([On continue le chemin.])
+            Assign($(x2,x1)$, $(x1, x0)$)
+            Assign(r, $(x1->x2)$)
+          })
+
+          Return($(L, dot(L))$)
+        },
+      )
+    },
+  )
+]
+
+#let xB = $x^B$
+#let xS = $x^S$
+#let xD = $x^D$
+
+#let xB0 = $x^B_0$
+#let xS0 = $x^S_0$
+#let xD0 = $x^D_0$
+
+#let wB = $omega^B$
+#let betaB = $beta^B$
+#let betaS = $beta^S$
+#let betaD = $beta^S$
+#let pS0 = $p^S_0$
+#let pD0 = $p^D_0$
+#let itersec_src = $"intersec"_"src"$
+#let itersec_cam = $"intersec"_"cam"$
+#let f_hatB = $hat(f)^B$
+#let JB = $J^B$
+
+#let boundary_intr_algo = [
+  #algorithm-figure(
+    "Differentiation du Path Tracer : bordure",
+    vstroke: .5pt + luma(200),
+    {
+      import algorithmic: *
+      Procedure(
+        [$"PT_diff_intérieur"$],
+        [$PP$, Bool _direct_],
+        {
+          Comment([Échantillonage d'un segment de bordure])
+          Assign($(xB, wB)$, $(x, omega) ~ PP(x, omega)$)
+          Assign($#itersec_src$, $"Intersection"((xB, -wB))$)
+          Assign($#itersec_cam$, $"Intersection"((xB, wB))$)
+          Comment([Si les deux rayons tapent])
+          IfElseChain(
+            [$#itersec_src and #itersec_cam$],
+            {
+              Assign($xS0$, $#itersec_src."point"$)
+              Assign($xD0$, $#itersec_cam."point"$)
+              LineBreak
+              Assign($betaB$, $#f_hatB JB (xB, wB) \/PP(xB, wB)$)
+              Assign($pS0$, $P(xS0, pi)$)
+              Assign($pD0$, $P(xD0, pi)$)
+
+              Comment([Échantillonage d'un sous chemin])
+              IfElseChain(
+                [_direct_],
+                {
+                  Assign($betaS$, $#itersec_src. L_e (xS0 -> xD0)$)
+                },
+                {
+                  Assign($betaS$, $"Estimation du chemin source"(pD0, pS0)$)
+                },
+              )
+              Assign($betaD$, $"Estimation du chemin de la camera"(pD0, pS0)$)
+              Return($betaS betaB betaD$)
+            },
+            {
+              Return($0$)
+            },
+          )
+        },
+      )
+    },
+  )
+]
 
 
 == Autres Méthodes (Methode de l'EPFL)
@@ -505,14 +635,22 @@ Cette première implantation souffrait de la faible parallélisation du `CPU`. E
 La suite des tutoriels de _Peter Shirley_ nous a amenés à construire des rendus plus élaborés.
 Nous avons donc ajouté la possibilité d'avoir des matériaux volumétriques et des textures.
 
-*TODO IMG VOLUMÉTRIQUE && textures*
+#let vol_text_caption = "Scène rendue à partir du ray tracer CPU implanté."
+#let vol_text = image("Images/Rt_series/text_plus_vol.png", width: 70%, alt: vol_text_caption)
+
+#figure(vol_text, caption: vol_text_caption)
 
 Afin d'accélérer le processus, nous avons implanté divers moyens d'accélérer le processus, comme des `BVH` (Bounding Volume Hierarchy, comprendre hiérarchie des volumes englobants), et des méthodes de Monte Carlo plus efficaces, par exemple, au lieu d'opérer la quadrature sur une marche aléatoire à direction uniforme, nous tirons une direction en fonction de la distribution de la `BRDF`.
 
 Au fur et à mesure, le tutoriel nous amène à construire un path tracer, les nouvelles directions sont donc tirées en fonction du placement des lumières, et l'on passe d'un programme récursif à terminal-récursif.
 
 De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles que le chargement de maillage et le multi-threading.
-*TODO add mesh*
+
+#let vol_text_caption = "Scène rendue à partir du path tracer CPU implanté."
+#let vol_text = image("Images/Rt_series/dragon.png", width: 70%, alt: vol_text_caption)
+
+#figure(vol_text, caption: vol_text_caption)
+
 
 == Passage sur GPU
 
@@ -544,6 +682,8 @@ Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'i
 Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
+
+À faire...
 
 = Annexe
 
