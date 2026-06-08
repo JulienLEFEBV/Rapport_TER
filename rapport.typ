@@ -112,6 +112,7 @@
 #let Veach_equation_du_rendu_chemin = link(
   "https://graphics.stanford.edu/papers/metro/metro.pdf",
 )[*Metropolis Light Transport*]
+#let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -120,6 +121,10 @@
 #let rayon(r) = $arrow(""_dot#r)$
 #let rayon_dir(r) = $arrow(""_dot#r).arrow(d)$
 #let rayon_ori(r) = $arrow(""_dot#r).o$
+#let mat_space = $cal(B)$
+#let mouvement = $Chi$
+#let trajectoire = $cal(T)$
+#let extended_boundary(func,para) = $overline(partial #ensemble_surfaces)\[#func]\(#para)$
 
 = Introduction
 
@@ -214,14 +219,14 @@ Une méthode de ray tracing naïve de la marche aléatoire :
         If([$f_(cos) = 0$], Return[$L_e$])
         Comment([Appel récursif, ($1/(4pi)$ : Probabilité de tiré une direction.)])
         // Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
-        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?
+        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?  C'est mieux comme ça
         Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4 pi))$]
       },
     )
   },
 )
 
-// @Julien, pense tu cette section utiles ?
+// @Julien, pense tu cette section utiles ? Ui
 Généralement, les implémentation du lancer de rayon son avec de meilleur moyen pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleur convergence.
 
 //TODO mettre comparaison
@@ -261,7 +266,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est l'importance du capteur //Jsp si c'est le bon nom en français ? TODO A voir
-  //@Julien *> j'aurais peut être mis sensibilité ?
+  //@Julien *> j'aurais peut être mis sensibilité ? Peut être
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
@@ -423,6 +428,55 @@ Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc
   $#vel_tan = #vel_loc - #vel_scal #norm_field$, respectivement, la vitesse scalaire local et la vitesse tangentielle local.
 
 ]
+
+Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
+
+//TODO : à retaper jsp c'est pas ouf j'ai l'impression tu en penses quoi @Corentin ?
+
+#definition(title: "Configuration de référence, mouvement et déformation")[
+  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence. 
+  On appelle une déformation de #mat_space une fonction injective différentiable de #mat_space sur une surface #ensemble_surfaces.
+  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces. 
+  De plus nous pouvons remarquer que si on fixe un paramètre $pi in RR$, alors $#mouvement\(dot,pi)$ est une déformation de #mat_space.
+]
+ 
+#definition(title : "Surface évoluante, carte de référence et trajectoire")[
+  Pour un mouvement #mouvement et un paramètre $pi$, on appelle surface évoluante l'image $#ensemble_surfaces\(pi) := {#mouvement\(p,pi) : p in #mat_space} in RR^3$ de la fonction $#mouvement\(p,pi)$.
+  De plus, comme cette fonction est injective, on peut définir une fonction inverse sur son image $P(dot,pi) : #ensemble_surfaces\(pi) -> #mat_space$ que l'on appellera carte de référence.
+  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in  #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
+]
+
+#definition(title : "Espace des matériaux et espace des position")[
+  On appellera $p in #mat_space$ un point de matériau et $x in #ensemble_surfaces\(pi)$ un point de position.
+  Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
+  On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
+]
+Pour les définitions nous allons poser $phi\(x,pi)$ un champ de position scalaire sur $#ensemble_surfaces\(pi)$.
+
+#definition(title : "Derivée de scène")[
+  $phi$ admet une dérivée de scène de la forme :
+  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi,pi'),pi') |_(pi'=pi) $ <derivée_scene>
+  Elle admet aussi une forme normalisée de cette dérivée :
+  $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_scene>
+]
+
+#definition(title : "Courbes de discontinuité et bordure étendue")[
+  La foction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble des ces courbes de discontinuité. On appellera #extended_boundary($phi$,$pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité. 
+]
+
+En utilisant la relation de transport venant de la mécanique des fluides par _Cermelli_ (#mecha_fluide) on peut obtenir :
+
+$ d / (d pi) integral_#ensemble_surfaces phi d A = I_"intérieur" + I_"bordure" $ <int_interieur_et_bordure>
+Avec $ I_"intérieur" = integral_#ensemble_surfaces (phi^square - phi kappa V)d A $
+$ I_"bordure"= integral_overline(partial #ensemble_surfaces) Delta phi V_overline(partial #ensemble_surfaces)d A $
+Avec $kappa$ la courbature totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vistesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x,pi)$ le prolongement défini comme si dessous :
+$ Delta phi(x,pi) := cases(
+  phi(x,pi) "si" x in partial#ensemble_surfaces\(pi\),
+  phi^-(x,pi) - phi^+(x,pi) "si" x in Delta#ensemble_surfaces\(pi\)
+)
+ $ 
+
+
 
 == Autres Méthodes (Methode de l'EPFL)
 
