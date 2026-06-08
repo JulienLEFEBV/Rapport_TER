@@ -119,6 +119,7 @@
 #let Veach_equation_du_rendu_chemin = link(
   "https://graphics.stanford.edu/papers/metro/metro.pdf",
 )[*Metropolis Light Transport*]
+#let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -130,6 +131,7 @@
 #let mat_space = $cal(B)$
 #let mouvement = $Chi$
 #let trajectoire = $cal(T)$
+#let extended_boundary(func,para) = $overline(partial #ensemble_surfaces)\[#func]\(#para)$
 
 = Introduction
 
@@ -405,6 +407,32 @@ Avant de commencer à aborder la méthode de Shuang Zhao et son équipe (#shuang
   Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
   On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
 ]
+Pour les définitions nous allons poser $phi\(x,pi)$ un champ de position scalaire sur $#ensemble_surfaces\(pi)$.
+
+#definition(title : "Derivée de scène")[
+  $phi$ admet une dérivée de scène de la forme :
+  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi,pi'),pi') |_(pi'=pi) $ <derivée_scene>
+  Elle admet aussi une forme normalisée de cette dérivée :
+  $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_scene>
+]
+
+#definition(title : "Courbes de discontinuité et bordure étendue")[
+  La foction $phi$ est $cal(C)^0$ en fonction de $x$ sauf sur un ensemble de courbes qui évolue de façon continue en fonction de $pi$. On pose $Delta#ensemble_surfaces\[phi]\(pi) subset #ensemble_surfaces\(pi)$ l'ensemble des ces courbes de discontinuité. On appellera #extended_boundary($phi$,$pi$) la bordure étendue l'ensemble des bordures de $#ensemble_surfaces\(pi)$ et des courbes de discontinuité. 
+]
+
+En utilisant la relation de transport venant de la mécanique des fluides par _Cermelli_ (#mecha_fluide) on peut obtenir :
+
+$ d / (d pi) integral_#ensemble_surfaces phi d A = I_"intérieur" + I_"bordure" $ <int_interieur_et_bordure>
+Avec $ I_"intérieur" = integral_#ensemble_surfaces (phi^square - phi kappa V)d A $
+$ I_"bordure"= integral_overline(partial #ensemble_surfaces) Delta phi V_overline(partial #ensemble_surfaces)d A $
+Avec $kappa$ la courbature totale, $V$ et $V_overline(partial #ensemble_surfaces)$ les vistesses normales scalaires de $#ensemble_surfaces\(pi)$ et de la bordure étendue et $Delta phi(x,pi)$ le prolongement défini comme si dessous :
+$ Delta phi(x,pi) := cases(
+  phi(x,pi) "si" x in partial#ensemble_surfaces\(pi\),
+  phi^-(x,pi) - phi^+(x,pi) "si" x in Delta#ensemble_surfaces\(pi\)
+)
+ $ 
+
+
 
 == Autres Méthodes (Methode de l'EPFL)
 
