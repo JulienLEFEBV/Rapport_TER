@@ -36,7 +36,7 @@
   //=========Font =================
   title-font: "New Computer Modern",
   font: "New Computer Modern",
-  font-size: 13pt,
+  font-size: 13pt, //@Corentin si c'est trop long en peux toujours magouiller en passant à 12 ou 11 mais shhhhh
   font-weight: 400,
 
   //============ Math =============
@@ -411,7 +411,7 @@ Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc
 
 Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
 
-//TODO : à retaper jsp c'est pas ouf j'ai l'impression tu en penses quoi @Corentin ?
+//@Corentin tu pourras regarder un peu l'orthographe et si il y a des trucs sus dans les équations au cas où la fatigue m'ai fait écrire nimp ? J'ai relu mais au cas où
 
 #definition(title: "Configuration de référence, mouvement et déformation")[
   Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence. 
@@ -541,16 +541,46 @@ $ hat(f)(overline(p)) = (product^(N-1)_(n=0) hat(g) (p_(n+1); p_(n-1),p_n)) hat(
 
 où :
 $ hat(W)_e (p_N -> p_(N-1)) : = J(p_N) W_e (p_N -> p_(N-1)) $ <We_hat>
-et $ hat(g) (p_(n+1); p_(n-1),p_n)) = J(p_n) f_s (x_(n-1)-> x_n -> x_(n+1)) G(x_n<->x_(n+1)) $ <g_hat>
+et $ hat(g) (p_(n+1); p_(n-1),p_n)) = underbrace(hat(f)_s (p_(n-1)-> p_n -> p_(n+1)), J(p_n) f_s (x_(n-1)-> x_n -> x_(n+1))) G(x_n<->x_(n+1)) $ <g_hat>
 où $J$ est le déterminant de la Jacobienne $J(p_n)=|d A(x_n) \/ d A(p_n)|$
 
 On obtient ainsi :
 
 $ (partial I)/(partial pi) = integral_hat(Omega) (hat(f))^dot (overline(p)) d mu (overline(p)) + integral_(partial hat(Omega)) Delta hat(f)_K (overline(p)) V_(Delta cal(B)_K) (p_K) d mu' (overline(p)) $ <diff_mat_space>
 
-Nous allons maintenant voir les estimateurs de Monte Carlo permettant d'estimer l'intégrale intérieure et l'intégrale de bordure.
+Nous allons maintenant voir les estimateurs de Monte Carlo permettant d'estimer l'intégrale intérieure et l'intégrale de bordure. Pour l'intégrale intérieure, du fait de sa ressemblance avec l'intégrale du rendu, nous pouvons construire notre estimateur sur la base de l'algorithme du path tracer :
 
-== Autres Méthodes (Methode de l'EPFL)
+#let todo_corentin1 //Tu peux mettre le premier algo ici stp :3
+
+#definition(title : "Sous chemin de source et sous chemin de caméra")[
+  Soit $overline(p) = (p^S_s,...,p^S_0,p^C_0,...,p^C_t)$ un chemin dans l'espace des matériaux, on appelle $overline(p)^S = (p^S_s,...,p^S_1)$ le sous-chemin vers la source, il connecte $p^S_0$ à une source de lumière, et $overline(p)^C = (p^C_1,...,p^C_t)$ le sous-chemin vers la caméra, il connecte $p^C_0$ à la caméra. 
+]
+
+Nous allons réécrire l'intégrale de bordure de manière à, pour un point de discontinuité entre $p^S_0$ et $p^C_0$, prendre en compte le sous-chemin de source et le sous-chemin de caméra :
+$ integral_(partial hat(Omega)) hat(f)^S hat(f)^B hat(f)^C $ <bordure_1>
+avec :
+$ hat(f)^B := Delta G(x_0^S <-> x_0 ^ C)V_(Delta #mat_space) $ <fb_hat>
+$ hat(f)^S :=  hat(f)_s (p_1^S-> p_0^S -> p_0^C) product^s_(n=1) hat(f)_s (p_(n+1)^S-> p_n^S -> p_(n-1)^S) G(x_(n-1)^S <->x_n^S) $ <fs_hat> 
+$ hat(f)^C :=  hat(f)_s (p_0^S-> p_0^C -> p_1^C) product^s_(n=1) hat(f)_s (p_(n-1)^C-> p_n^C -> p_(n+1)^C) G(x_(n-1)^C <->x_n^C) $ <fc_hat>
+
+Nous pouvons réécrire cela sous la forme :
+$ integral_#mat_space integral_(Delta #mat_space) [integral_hat(Omega) hat(f)^S d mu (overline(p)^S)] hat(f)^B  [integral_hat(Omega) hat(f)^C d mu (overline(p)^C)] d cal(l) (p_0^C) d A (p_0^S) $ <bordure_2>
+
+Pour pouvoir échantillonner un point sur la bordure, nous allons effectuer un changement de variable pour passer de $p_0^S$ et $p_0^C$ à $x^B$ le point de discontinuité, et $omega^B := x_0^S -> x_0^C$ : 
+
+$ integral.triple [integral_hat(Omega) hat(f)^S d mu (overline(p)^S)] hat(f)^B  J^B (x^B,omega^B) [integral_hat(Omega) hat(f)^C d mu (overline(p)^C)] d omega^B d x^B $ <bordure_3>
+
+où $ J^B (x^B,omega^B) = |(d A(x_0^S)d cal(l)(x_0^C))/(d x^B d omega^B)||(d A(p_0^S)d cal(l)(p_0^C))/(d A (x_0^S) d cal(l)(x_0^C))|  $
+
+Grâce à cela nous pouvons créer l'estimateur de Monte Carlo suivant :
+
+#let todo_corentin2 //Tu peux mettre le deuxième algo ici mon cher ? :3
+
+Pour l'échantillonnage du point de discontinuité et de la direction, nous pourrions utiliser une distribution uniforme, mais cela pourrait donner une convergence lente. C'est pour cela que nous pouvons utiliser une carte de photons (issue du photon mapping) et une carte d'importons (issue d'un photon mapping partant de la caméra). Pour voir plus en détail comment nous pouvons mettre en place cet échantillonnage, veuillez consulter le travail de _Shuang Zhao_ et son équipe (#shuang_zhao). //@Corentin Je detail pas plus il est tard et en plus j'ai peur pour la place honnêtement. Enfin à voir :p
+
+== Différentiation à l'Aide du Multi Importance Sampling : la Méthode de l'EPFL
+
+Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'echantillonage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon (puis j'ai la flemme de me replonger dans le papelard à 6 heure du mat bruh) (si ça te vas pas tu as le droit de me detester par ailleur) bon au lit zzzzzzzzzz
 
 // implantation
 = Implantation des algorithme
@@ -616,6 +646,8 @@ Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'i
 Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
+
+#let todo_corentin3 //Tu pourras faire la conclusion stp ? 
 
 = Annexe
 
