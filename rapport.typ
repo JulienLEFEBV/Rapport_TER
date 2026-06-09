@@ -834,7 +834,12 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-À faire... //TODO
+Il s'agit d'un plan pour la conclusion :
+
+Plan rendu :
+Nous avons vu : equation du rendu, ray tracing et path tracing, la différentition
+Nous avons fait : implém => finir implém
+Ouverture => autres papier de l'UC (Zhao chez NVidia) + autres méthodes (diff des estimateurs / estimateur de fonctionnels ...)
 
 = Annexe
 
