@@ -183,7 +183,7 @@ On peut la définir comme ci-dessous :
 L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique, notamment en raison de sa nature récursive.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
 
-== Par quadrature (Ray Tracing)
+== Par quadrature : le Ray Tracing
 
 <raytracing_def>
 #definition(title: "Rayon")[
@@ -237,7 +237,7 @@ Généralement, les implémentation du lancer de rayon son avec de meilleur moye
 
 //TODO mettre comparaison
 
-== Le Path Tracing
+== Par Méthode de Monte Carlo : le Path Tracing
 
 L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997 notamment dans son papier #Veach_equation_du_rendu_chemin.
 
@@ -259,9 +259,9 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
 #let dmu_def = $product^(N)_(n=0) d A(x_n)$
 #let We(x, y) = $W_(e)(#x -> #y)$
 #let g(z, x, wn) = $g(#z : #x, #wn)$
-#let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n, x_(n+1))$
+#let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n <-> x_(n+1))$
 #let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
-#let G_def = $VV(x_n, x_(n+1))G_0(x_n, x_(n+1))$
+#let G_def = $VV(x_n <-> x_(n+1))G_0(x_n <->  x_(n+1))$
 #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
 
 #let pt_eq(x) = $integral_#espace_chemins f(#x) dmu(#xbar)$
@@ -276,16 +276,16 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
-  $ G(x_n, x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
+  $ G(x_n <->  x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
 
-  où $VV (x_n, x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$
+  où $VV (x_n <->  x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$
   sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et
-  $ G_0(x_n, x_(n+1)) := #G0_def $ <G0_équation_du_rendu_chemins>
+  $ G_0(x_n <->  x_(n+1)) := #G0_def $ <G0_équation_du_rendu_chemins>
   où $omega_n$ représente le vecteur unitaire partant $x_n$ et pointant vers $x_(n+1)$.
 ]
 
 Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de _Shung Zhao_ et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
-En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bord (ou boundary).
+En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bordure (ou boundary).
 
 
 Cette réécriture est aussi à la base de l'algorithme du path tracing qui est fondamental car nous verrons qu'il est possible de le différencier.
@@ -382,7 +382,7 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
   ]
 = La Différentiation
 
-== La Méthode Naïve
+== Différence Fini : la Méthode Naïve
 
 Pour obtenir une aproximation, nous pourrions utilisé la méthode la différence fini.
 
@@ -407,7 +407,7 @@ Premièrement, la stabilité numérique des nombre à virgule flotantes, en effe
 
 Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc le doublage du temps de calcul.
 
-== La Méthode Etudiée (Méthode de l'UC)
+== Différentiation à l'Aide d'un Path Tracer : la Méthode de l'UC
 
 Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shuang_zhao) nous allons d'abord introduire quelques définitions importantes.
 
@@ -505,6 +505,50 @@ avec $hat(f)_"direct" := f_"direct"\(x)J(p)$ avec $x = #mouvement\(p,pi)$ et $J$
 Comme nous intégrons sur la configuration de référence #mat_space qui ne dépend pas du paramètre $pi$ nous pouvons appliquer la relation de _Reynolds_ (@int_avec_reynolds) ce qui nous donne :
 $ (partial I_"direct") / (partial pi) = integral_#mat_space (hat(f)_"direct")^dot d A + integral_(Delta #mat_space) Delta hat(f)_"direct" V_(Delta #mat_space) d cal(l) $ <diff_direct_material>
 
+Nous allons maintenant essayer de généraliser cette relation. Pour ce faire, nous allons utiliser le fait que $I=sum^infinity_(N=1) I_N$ où $I_N$ est l'intégrale du rendu (@équation_rendu_chemins) restreinte aux chemins de taille $N$. Nous allons commencer par réécrire $I_N$ de façon récursive. Pour ce faire, nous allons poser les fonctions $h_n$ telles que : 
+
+$ h_N\(x_N;x_(N-1)) := W_e\(x_N -> x_(N-1)) $ <hN>
+et pour tout $0 <= n < N$ : 
+$ h_n := integral_#ensemble_surfaces g(x_(n+1);x_(n-1),x_n) h_(n+1)(x_(n+1);x_n) d A(x_(n+1)) $ <hn>
+
+Ce qui permet d'obtenir :
+$ h_0\(x_0) = integral_(#ensemble_surfaces^N) f(overline(x)) product^N_(n=1) d A(x_n) $ <h0>
+$ I_N = integral_#ensemble_surfaces h_0(x_0) d A(x_0) $ <In_h0>
+
+Nous pouvons appliquer à $h_n$ la relation de transport (@int_interieur_et_bordure) ce qui nous donne : 
+$ dot(h)_n = integral_#ensemble_surfaces \[(h_(n+1)g)^dot-h_(n+1)g kappa V] d A + integral_overline(partial #ensemble_surfaces)_(n+1) h_(n+1) Delta g V_overline(partial #ensemble_surfaces)_(n+1) d cal(l) $ <hndot>
+
+Comme pour le cas direct dans l'espace des positions, grâce à l'axiome *A.1* nous avons que $(h_(n+1)g)^square = (h_(n+1)g)^dot$.
+
+Nous pouvons ainsi différencier $I_N$ en développant successivement les $h_n$ et $dot(h)_n$ et nous obtenons ainsi :
+$ (partial I_N) / (partial pi) = integral_(Omega_N) [dot(f)(overline(x)) - f(overline(x)) sum^N_(K=0) kappa(x_K) V(x_K)] d mu (overline(x)) \ + sum^N_(K=0) [integral_(partial Omega_(N,K)) Delta f_K (overline(x)) V_overline(partial #ensemble_surfaces)_k (x_k) d mu'_(N,K)(overline(x))] $ <big_diff_In>
+
+où : $ partial Omega_(N,K) := underbrace(M(pi)^K,"chemin vers la lumière")times underbrace(overline(partial #ensemble_surfaces)_K (pi),"point de discontinuité")  times underbrace(#ensemble_surfaces\(pi\)^(N-K),"chemin vers la caméra") $ <omegaNK>
+
+$ d mu'_(N,K) := d cal(l)(x_k) product_(0<=n<=N \ n != K) $ <mu_prime>
+
+$ Delta f_K (overline(x)) = (f(overline(x)) Delta g(x_K;x_(K-2),x_(K-1))) / g(x_K;x_(K-2),x_(K-1)) $ <delta_f>
+
+Ainsi nous pouvons sommer la différentielle des $I_N$ (@big_diff_In) pour obtenir la différentielle de $I$ on a ainsi :
+$ (partial I)/(partial pi) = integral_Omega [dot(f)(overline(x))-f(overline(x)) sum^N_(K=0) kappa (x_K) V(x_K)] d mu (overline(x)) \ + integral_(partial Omega) Delta f_K (overline(x)) V_(overline(partial #ensemble_surfaces)_K) (x_K) d mu'(overline(x)) $ <diff_I_spatial>
+où $partial Omega = union^infinity_(N=1) union^N_(K=0) partial Omega_(N,K)$ et $mu'(D):= sum^infinity_(N=1) sum^N_(K=0) mu'_(N,K) (D inter partial Omega_(N,K))$.
+
+Comme pour le cas direct, nous pouvons effectuer un changement de variable pour nous placer dans l'espace des matériaux. Nous allons d'abord passer l'intégrale du rendu (@équation_rendu_chemins) dans l'espace des matériaux en effectuant un changement de variable :
+
+$ I = integral_hat(Omega) hat(f) (overline(p)) d mu (overline(p)) $ <équation_rendu_mat_space>
+avec $hat(Omega) := union^infinity_(N=1) cal(B)^(N+1)$ et :
+$ hat(f)(overline(p)) = (product^(N-1)_(n=0) hat(g) (p_(n+1); p_(n-1),p_n)) hat(W)_e (p_N -> p_(N-1)) $ <f_hat>
+
+où :
+$ hat(W)_e (p_N -> p_(N-1)) : = J(p_N) W_e (p_N -> p_(N-1)) $ <We_hat>
+et $ hat(g) (p_(n+1); p_(n-1),p_n)) = J(p_n) f_s (x_(n-1)-> x_n -> x_(n+1)) G(x_n<->x_(n+1)) $ <g_hat>
+où $J$ est le déterminant de la Jacobienne $J(p_n)=|d A(x_n) \/ d A(p_n)|$
+
+On obtient ainsi :
+
+$ (partial I)/(partial pi) = integral_hat(Omega) (hat(f))^dot (overline(p)) d mu (overline(p)) + integral_(partial hat(Omega)) Delta hat(f)_K (overline(p)) V_(Delta cal(B)_K) (p_K) d mu' (overline(p)) $ <diff_mat_space>
+
+Nous allons maintenant voir les estimateurs de Monte Carlo permettant d'estimer l'intégrale intérieure et l'intégrale de bordure.
 
 == Autres Méthodes (Methode de l'EPFL)
 
