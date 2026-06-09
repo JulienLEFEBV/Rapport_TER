@@ -496,18 +496,18 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 
 #let xB = $x^B$
 #let xS = $x^S$
-#let xD = $x^D$
+#let xC = $x^C$
 
 #let xB0 = $x^B_0$
 #let xS0 = $x^S_0$
-#let xD0 = $x^D_0$
+#let xC0 = $x^C_0$
 
 #let wB = $omega^B$
 #let betaB = $beta^B$
 #let betaS = $beta^S$
 #let betaD = $beta^S$
 #let pS0 = $p^S_0$
-#let pD0 = $p^D_0$
+#let pC0 = $p^C_0$
 #let itersec_src = $"intersec"_"src"$
 #let itersec_cam = $"intersec"_"cam"$
 #let f_hatB = $hat(f)^B$
@@ -531,23 +531,23 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
             [$#itersec_src and #itersec_cam$],
             {
               Assign($xS0$, $#itersec_src."point"$)
-              Assign($xD0$, $#itersec_cam."point"$)
+              Assign($xC0$, $#itersec_cam."point"$)
               LineBreak
               Assign($betaB$, $#f_hatB JB (xB, wB) \/PP(xB, wB)$)
               Assign($pS0$, $P(xS0, pi)$)
-              Assign($pD0$, $P(xD0, pi)$)
+              Assign($pC0$, $P(xC0, pi)$)
 
               Comment([Échantillonage d'un sous chemin])
               IfElseChain(
                 [_direct_],
                 {
-                  Assign($betaS$, $#itersec_src. L_e (xS0 -> xD0)$)
+                  Assign($betaS$, $#itersec_src. L_e (xS0 -> xC0)$)
                 },
                 {
-                  Assign($betaS$, $"Estimation du chemin source"(pD0, pS0)$)
+                  Assign($betaS$, $"Estimation du chemin source"(pC0, pS0)$)
                 },
               )
-              Assign($betaD$, $"Estimation du chemin de la camera"(pD0, pS0)$)
+              Assign($betaD$, $"Estimation du chemin de la camera"(pC0, pS0)$)
               Return($betaS betaB betaD$)
             },
             {
@@ -727,7 +727,7 @@ Nous allons maintenant voir les estimateurs de Monte Carlo permettant d'estimer 
 Nous allons réécrire l'intégrale de bordure de manière à, pour un point de discontinuité entre $p^S_0$ et $p^C_0$, prendre en compte le sous-chemin de source et le sous-chemin de caméra :
 $ integral_(partial hat(Omega)) hat(f)^S hat(f)^B hat(f)^C $ <bordure_1>
 avec :
-$ hat(f)^B := Delta G(x_0^S <-> x_0^C)V_(Delta #mat_space) $ <fb_hat>
+$ hat(f)^B := Delta G(x_0^S <-> x^C_0)V_(Delta #mat_space) $ <fb_hat>
 $
   hat(f)^S := hat(f)_s (p_1^S-> p_0^S -> p_0^C) product^s_(n=1) hat(f)_s (p_(n+1)^S-> p_n^S -> p_(n-1)^S) G(x_(n-1)^S <->x_n^S)
 $ <fs_hat>
@@ -834,10 +834,8 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-À faire...
+À faire... //TODO
 
-#let todo_corentin3 //Tu pourras faire la conclusion stp ?
-//> Yes I
 = Annexe
 
 Le code source de nos travaux est trouvable sur trois dépôts GitHub différents :
