@@ -128,6 +128,9 @@
 // #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 #let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
 
+// #let reynolds = link("https://academicweb.nd.edu/~powers/ame.20231/reynolds1903.pdf")[*The Sub-Mechanics of the Universe*]
+#let reynolds = [*The Sub-Mechanics of the Universe* @Reynold:SubMechOfTheUniverse]
+
 #let slang = [*Slang* @SlangDoc]
 
 #let ptvk(x) = link("https://github.com/Coren tinVaillant/Vk-Path-Tracer")[#x]
