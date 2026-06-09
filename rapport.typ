@@ -200,7 +200,7 @@ On peut la définir comme ci-dessous :
   - $Le(x, omega_o)$ représente la luminance émise par le point $x$ dans la direction $omega_o$.
   - $Omega$ représente la sphère de rayon 1 autour du point $x$.
   - $Li(x, omega_i)$ représente la luminance arrivant en $x$ depuis la direction $omega_i$ et elle est définie de la manière suivante : $L_i\(x,omega_i)=L_o\(v\i\s(x,omega_i),-omega_i)$ où $v\i\s(x,omega_i)$ donne le premier point intersecté en partant dans la direction $omega_i$ a partir du point $x$.
-  - $fi(x, omega_o, omega_i)$ représente la BRDF qui nous donne la distribution de la luminance arrivant en $x$ depuis la direction $omega_i$ et réfléchi dans la direction $omega_o$, il s'agit en faite d'une fonction décrivant les propriété photométrique d'une matière.
+  - $fi(x, omega_o, omega_i)$ représente la BSDF qui nous donne la distribution de la luminance arrivant en $x$ depuis la direction $omega_i$ et dispersé dans la direction $omega_o$, il s'agit en faite d'une fonction décrivant les propriété photométrique d'une matière.
   - $theta$ représente l'angle formé $omega_i$ et la $arrow(n)$ normale de la surface.
   - $cosbar(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
 ]
@@ -396,9 +396,9 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
     // > Je ne pense pas que cela soit nécessaire, notamment avec le manque de place.
   ]
 
-+ #block[Le photon mapping qui se base aussi sur une technique de lancer de rayon.
-    Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une photon map.
-    Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la photon map avec un algorithme des plus proches voisins.
++ #block[Le photon mapping (cartographie des photons) qui se base aussi sur une technique de lancer de rayon.
+    Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une carte de photons.
+    Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la carte de photons avec un algorithme des plus proches voisins.
     Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par _Shuang Zhao_ et son équipe (#shuang_zhao), nous en reparlerons dans la section dédiée.]
 
 + #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
@@ -834,7 +834,12 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-À faire... //TODO
+Il s'agit d'un plan pour la conclusion :
+
+Plan rendu :
+Nous avons vu : equation du rendu, ray tracing et path tracing, la différentition
+Nous avons fait : implém => finir implém
+Ouverture => autres papier de l'UC (Zhao chez NVidia) + autres méthodes (diff des estimateurs / estimateur de fonctionnels ...)
 
 = Annexe
 
