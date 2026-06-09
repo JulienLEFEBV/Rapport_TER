@@ -22,3 +22,8 @@ jobs:
     - name: Make pdf
       run: make
 
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rapport
+        path: rapport.pdf
