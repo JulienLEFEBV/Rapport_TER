@@ -215,11 +215,11 @@ C'est pour cela que des méthodes pour estimer cette intégrale ont été mises 
   On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
 ]
 
-Le ray tracing (lancée de rayon dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu).
-Il se base sur une techinique de lancer de rayon à partir de la caméra vers la scène, c'est-à-dire dans le sens inverse de la lumière.
+Le ray tracing (lancer de rayons dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu).
+Il se base sur une technique de lancer de rayons à partir de la caméra vers la scène, c'est-à-dire dans le sens inverse de la lumière.
 Cela donne le même résultat que dans le sens de la lumière d'après le principe du retour inverse de la lumière de Fermat.
-Il se base aussi sur les lois de Snell-Decartes de réflexion et réfraction de la lumière.\
-Il sagit en fait d'une quadrature de la scène, à partir de rayon envoyer récursivement.
+Il se base aussi sur les lois de Snell-Descartes de réflexion et réfraction de la lumière.\
+Il s'agit en fait d'une quadrature de la scène, à partir de rayons envoyés récursivement.
 Une méthode de ray tracing naïve de la marche aléatoire :
 #algorithm-figure(
   "Marche Aléatoire",
@@ -258,18 +258,18 @@ Une méthode de ray tracing naïve de la marche aléatoire :
 )
 
 // @Julien, pense tu cette section utiles ? Ui
-Généralement, les implémentation du lancer de rayon son avec de meilleur moyen pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleur convergence.
+Généralement, les implantations du lancer de rayons sont avec de meilleurs moyens pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleure convergence.
 
 //TODO mettre comparaison
 
 == Par Méthode de Monte Carlo : le Path Tracing
 
-L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unitée autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997 notamment dans son papier #Veach_equation_du_rendu_chemin.
+L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unité autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997, notamment dans son papier #Veach_equation_du_rendu_chemin.
 
 #definition(title: "Chemin de lumière et espace des chemins")[
   Soit #ensemble_surfaces l'ensemble des surfaces des objets de notre scène.
   On appelle chemin de lumière (ou light path) un vecteur $#chemin = (x_0,x_1,...,x_N)$ de $#ensemble_surfaces^(N+1)$. Les chemins commencent sur une lumière en $x_0$ pour aller jusqu'à la caméra en $x_N$.
-  On appel espace des chemins (ou path space) l'ensemble $#espace_chemins := union_(N=1)^infinity #ensemble_surfaces^(N+1)$.
+  On appelle espace des chemins (ou path space) l'ensemble $#espace_chemins := union_(N=1)^infinity #ensemble_surfaces^(N+1)$.
 ]
 
 #figure(
@@ -296,7 +296,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   $ I = #pt_eq(xbar) $<équation_rendu_chemins>
   Où $mu$ est la mesure du produit des aires défini par $d mu(#chemin) := #dmu_def$ avec $A$ la mesure de l'aire d'une surface et $f(#chemin)$ est défini de la facon suivante :
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
-  où $W_e$ est la sensibilité du capteur
+  où $W_e$ est la sensibilité du capteur,
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
   $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
@@ -305,14 +305,14 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   où $VV (x_n <-> x_(n+1))$ vaut 1 si $x_n$ et $x_(n+1)$
   sont visibles, c'est-à-dire s'il n'y a pas de surfaces opaques entre eux, et 0 sinon et
   $ G_0(x_n <-> x_(n+1)) := #G0_def $ <G0_équation_du_rendu_chemins>
-  où $omega_n$ représente le vecteur unitaire partant $x_n$ et pointant vers $x_(n+1)$.
+  où $omega_n$ représente le vecteur unitaire partant de $x_n$ et pointant vers $x_(n+1)$.
 ]
 
-Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de _Shung Zhao_ et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
+Cette réécriture de l'équation du rendu sur l'espace des chemins est ce qui nous permettra dans la suite, lorsque nous aborderons les travaux de _Shuang Zhao_ et son équipe (#shuang_zhao) de calculer la différentielle de notre scène.
 En effet, on verra qu'il est possible de "rentrer" la différentielle à l'intérieur de l'intégrale et que cela nous créera deux intégrales, une intérieure (ou interior) et une de bordure (ou boundary).
 
 
-Cette réécriture est aussi à la base de l'algorithme du path tracing qui est fondamental car nous verrons qu'il est possible de le différencier.
+Cette réécriture est aussi à la base de l'algorithme du path tracing, qui est fondamental car nous verrons qu'il est possible de le différencier.
 Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les chemins (@équation_rendu_chemins).
 
 
@@ -390,10 +390,10 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 
 
 + #block[La rastérisation qui, comme le ray tracing, est une quadrature de l'équation du rendu.
-    Pour le rendu en temps réel, cette méthodes est souvent utilisé, bien que le ray traicing est de plus en plus mis en avant.
-    Elle est non biaisée et différenciable.mais elle reste très limitée, notamment au niveau de la différenciation et à une convergence assez lente.
+    Pour le rendu en temps réel, cette méthode est souvent utilisée, bien que le ray tracing soit de plus en plus mis en avant.
+    Elle est non biaisée et différenciable. Mais elle reste très limitée, notamment au niveau de la différenciation et a une convergence assez lente.
     // -T-O-D-O- expliquer le principe
-    // > Je ne pense pas que cela soit nécessaire, notament avec le manque de place
+    // > Je ne pense pas que cela soit nécessaire, notamment avec le manque de place.
   ]
 
 + #block[Le photon mapping qui se base aussi sur une technique de lancer de rayon.
@@ -404,13 +404,12 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 + #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
     De plus cet algorithme est non biaisé mais, malheureusement, à ce jour aucune technique de différentiation n'a été découverte.]
 
-+ #block[Bien d'autres méthodes existent comme le #metropolis qui se base sur l'algorithme de Metropolis-Hastings, le #VCM qui fusionne le bidirectional path tracing et le photon mapping, le #cone qui donne une épaisseur aux rayons, ce que ne fait pas le raytracing ou encore le #splating qui effectue le rendu à l'aide de données extraites d'image et beaucoup d'autres… //On peut en rajouter si on en trouve des sympas :)
++ #block[Bien d'autres méthodes existent, comme le #metropolis qui se base sur l'algorithme de Metropolis-Hastings, le #VCM qui fusionne le bidirectional path tracing et le photon mapping, le #cone qui donne une épaisseur aux rayons, ce que ne fait pas le raytracing ou encore le #splating qui effectue le rendu à l'aide de données extraites d'image et beaucoup d'autres… //On peut en rajouter si on en trouve des sympas :)
   ]
 = La Différentiation
 
 == Différence Fini : la Méthode Naïve
-
-Pour obtenir une aproximation, nous pourrions utilisé la méthode la différence fini.
+Pour obtenir une approximation, nous pourrions utiliser la méthode des différences finies.
 
 Pour toute fonction continue $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
 
@@ -422,16 +421,16 @@ $<=> f'(x_0) = ( f(x_0 + h) - f(x_0)) /h - R(x_0 + h)/h$ \
 En assumant $R(x_0 + h)$ suffisament petit, nous avons donc :\
 $f'(x_0) tilde.eq ( f(x_0 + h) - f(x_0)) /h$
 
-Nous pouvons donc appliqué cette méthodes, en utilisant $h$ assez petit.\
-Ici $pi in RR$ représentes un paramètre de la scène. On notera toutes les fonctions dépendant de la scène à l'aide de la syntaxe suivantes $phi(pi : x_1, ... x_k)$, où $phi$ est une fonction quelconque dépendant des paramètres de la scène. \
+Nous pouvons donc appliquer cette méthode, en utilisant $h$ assez petit.\
+Ici $pi in RR$ représente un paramètre de la scène. On notera toutes les fonctions dépendant de la scène à l'aide de la syntaxe suivante $phi(pi : x_1, ... x_k)$, où $phi$ est une fonction quelconque dépendant des paramètres de la scène. \
 Nous avons donc :
 
 $partial/(partial pi) #pt_eq($pi: #xbar$) tilde.eq (#pt_eq($pi: #xbar$) - #pt_eq($pi - h: #xbar$)) / h$
 
-La méthode est donc facile à comprendre et à implanter, mais elle soufre de deux gros inconvénients.
-Premièrement, la stabilité numérique des nombre à virgule flotantes, en effet, s'il on prend $h$ trop petit, les imprécisions dans le calcul deviendrons de plus en plus importante.
+La méthode est donc facile à comprendre et à implanter, mais elle souffre de deux gros inconvénients.
+Premièrement, la stabilité numérique des nombres à virgule flottante. En effet, si l'on prend $h$ trop petit, les imprécisions dans le calcul deviendront de plus en plus importantes.
 
-Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc le doublage du temps de calcul.
+Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc le doublage du temps de calcul.
 
 == Différentiation à l'Aide d'un Path Tracer : la Méthode de l'UC
 
@@ -495,7 +494,6 @@ Et de plus, cette méthode nécessite de faire deux rendues,ce qui provoque donc
     },
   )
 ]
-
 
 #let xB = $x^B$
 #let xS = $x^S$
@@ -597,7 +595,7 @@ Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shua
 
 #definition(title: "Vitesse")[
   Avec $x in cal(M)(pi)$ et la paramétrisation #x_hat, il existe un unique $xi in cal(O)$ qui satisfait $#x_hat (xi, pi) = x$.
-  On note $xi$ comme étant les coordonées local de $x$.\
+  On note $xi$ comme étant les coordonnées locales de $x$.\
   On peut donc définir la vitesse local de $x$ comme :
 
   $ #vel_loc (x, pi) = (partial #x_hat (xi, pi'))/(partial pi') |_(pi' = pi) $ <vitesse_loc>
@@ -755,17 +753,17 @@ Grâce à cela nous pouvons créer l'estimateur de Monte Carlo suivant :
 
 #boundary_intr_algo
 
-Pour l'échantillonnage du point de discontinuité et de la direction, nous pourrions utiliser une distribution uniforme, mais cela pourrait donner une convergence lente. C'est pour cela que nous pouvons utiliser une carte de photons (issue du photon mapping) et une carte d'importons (issue d'un photon mapping partant de la caméra). Pour voir plus en détail comment nous pouvons mettre en place cet échantillonnage, veuillez consulter le travail de _Shuang Zhao_ et son équipe (#shuang_zhao). //@Corentin Je detail pas plus il est tard et en plus j'ai peur pour la place honnêtement. Enfin à voir :p
+Pour l'échantillonnage du point de discontinuité et de la direction, nous pourrions utiliser une distribution uniforme, mais cela pourrait donner une convergence lente. C'est pour cela que nous pouvons utiliser une carte de photons (issue du photon mapping) et une carte d'importance (issue d'un photon mapping partant de la caméra). Pour voir plus en détail comment nous pouvons mettre en place cet échantillonnage, veuillez consulter le travail de _Shuang Zhao_ et son équipe (#shuang_zhao). //@Corentin Je detail pas plus il est tard et en plus j'ai peur pour la place honnêtement. Enfin à voir :p
 
 == Différentiation à l'Aide du Multi Importance Sampling : la Méthode de l'EPFL
 
-Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'echantillonage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon (puis j'ai la flemme de me replonger dans le papelard à 6 heure du mat bruh) (si ça te vas pas tu as le droit de me detester par ailleur) bon au lit zzzzzzzzzz
+Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'échantillonnage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon (puis j'ai la flemme de me replonger dans le papelard à 6 heure du mat bruh) (si ça te vas pas tu as le droit de me detester par ailleur) bon au lit zzzzzzzzzz
 // Bonne nuit Julien, c'est parfait (comme toi mon cher)
 
 // implantation
 = Implantation des algorithme
 
-Afin de pouvoir comprendre les algorithmes étudiés, nous avons implémenté un ray tracer et un path tracer.
+Afin de pouvoir comprendre les algorithmes étudiés, nous avons implanté un ray tracer et un path tracer.
 
 == Premier ray tracer
 
@@ -806,7 +804,7 @@ De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles q
 
 == Passage sur GPU
 
-Pour la suite nous avons décidé d'utiliser `Vulkan` pour une implantation sur `GPU`.
+Pour la suite, nous avons décidé d'utiliser `Vulkan` pour une implantation sur `GPU`.
 `Vulkan` est une spécification proposée par _Khronos Group_ (qui propose aussi `OpenGL`), qui a vocation à remplacer `OpenGL`.
 `Vulkan` nous permet d'avoir un grand contrôle sur la carte graphique, mais comme le dit l'adage : "Un grand pouvoir implique de grandes responsabilités", la spécification est donc dure à prendre en main, avec un débogage compliqué, et une quantité de code à écrire conséquente.\
 Afin de nous aider, nous avons encore une fois suivi ce tutoriel : #vk_guide, qui nous a permis d'implanter un simple moteur graphique de rasterization.\
@@ -826,11 +824,11 @@ Une fois `Vulkan` appréhendé, nous avons fait notre premier ray tracer sur `GP
   caption: gpu_raytrace_img_caption,
 )
 
-Afin de structuré le code, nous avons lu (en partie) le livre #pbrb, qui aborde l'implantation complête d'un moteur de rendu efficace, avec une approche moderne (en `C++`).
+Afin de structurer le code, nous avons lu (en partie) le livre #pbrb, qui aborde l'implantation complète d'un moteur de rendu efficace, avec une approche moderne (en `C++`).
 
 De plus, nous avons utilisé le langage de shader #slang, un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
 
-Malheureusement, le temps nous a manqué, l'implantation du ray tracer sur `Vulkan` a pris plus de temps que prévu, et la complexité des mathématiques utilisées dans l'algorithme du path tracer nous a ralentis. Le path tracer que nous voulions implémenter n'a donc pas pu être fini à temps.\
+Malheureusement, le temps nous a manqué, l'implantation du ray tracer sur `Vulkan` a pris plus de temps que prévu, et la complexité des mathématiques utilisées dans l'algorithme du path tracer nous a ralentis. Le path tracer que nous voulions implanter n'a donc pas pu être fini à temps.\
 Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'implantation, pour à terme, y inclure les travaux de _Shuang Zhao_.
 
 Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
@@ -843,10 +841,10 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 //> Yes I
 = Annexe
 
-Le code sources de nos travaux est trouvables sur trois dépots GitHub différents :
+Le code source de nos travaux est trouvable sur trois dépôts GitHub différents :
 
 - Le code sources des tutoriels, et des implantations CPU sur #link("https://github.com/CorentinVaillant/travaux_TER.git")
-- L'implantation du path tracer sur GPU est disponible sur #link("https://github.com/CorentinVaillant/Vk-Path-Tracer")
+– L'implantation du path tracer sur GPU est disponible sur #link("https://github.com/CorentinVaillant/Vk-Path-Tracer")
 - Et le rapport se trouve sur #link("https://github.com/JulienLEFEBV/Rapport_TER")
 
 #pagebreak()
