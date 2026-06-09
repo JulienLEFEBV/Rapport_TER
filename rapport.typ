@@ -169,7 +169,7 @@ En effet ce domaine est très challengeant parce qu'à ce jour aucun algorithme 
 
 Dans ce TER, nous nous sommes intéressés aux travaux de _Cheng Zhang_, _Bailey Miller_, _Kai Yan_, _Ioannis Gkioulekas_ et _Shuang Zhao_ (#shuang_zhao) qui proposent une solution sans biais à ce problème basée sur la séparation en deux sous-problèmes.
 
-Pour effectuer ce TER, nous nous sommes aussi intéressés au ray tracing ainsi qu'au path tracing, notamment grâce à la série de livres #raytracing_in_one_weekend, dans le but d'acquérir les bases nécessaires à la compréhension du papier.
+Pour effectuer ce TER, nous nous sommes aussi intéressés au ray tracing ainsi qu'au path tracing, notamment grâce à la série de livres #raytracing_serie, dans le but d'acquérir les bases nécessaires à la compréhension du papier.
 
 Dans le cadre de ce travail, nous avons aussi tenté d'implanter un Path Tracer sur GPU avec Vulkan (#ptvk[*Github vers les projet*]).
 
@@ -411,11 +411,10 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
 == Différence Fini : la Méthode Naïve
 Pour obtenir une approximation, nous pourrions utiliser la méthode des différences finies.
 
-Pour toute fonction continue $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
+Pour toute fonction $cal(C)^(1)$ $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
 
 $h : x_0 + h in V$ \
-$f(x_0 + h) = sum_(n in NN) (f^((n)) (x_0))/(n!) h^n$ \
-$= f(x_0) + f'(x_0)h + R(x_0 + h)$ : Avec $R(x_0 + h)$ le reste.\
+$f(x_0 + h) = f(x_0) + f'(x_0)h + R(x_0 + h)$ : Avec $R(x_0 + h)$ le reste.\
 $<=> f(x_0 + h) / h = f(x_0)/h + f'(x_0) + R(x_0 + h)/h$ \
 $<=> f'(x_0) = ( f(x_0 + h) - f(x_0)) /h - R(x_0 + h)/h$ \
 En assumant $R(x_0 + h)$ suffisament petit, nous avons donc :\
@@ -767,7 +766,7 @@ Afin de pouvoir comprendre les algorithmes étudiés, nous avons implanté un ra
 
 == Premier ray tracer
 
-Nous avons donc commencé par suivre une série de tutoriels : #raytracing_in_one_weekend, écrit principalement par _Peter Shirley_.\
+Nous avons donc commencé par suivre une série de tutoriels : #raytracing_serie, écrit principalement par _Peter Shirley_.\
 Le but de ces tutoriels était d'implanter, en `C++`, un premier ray tracer.
 
 
@@ -850,7 +849,3 @@ Le code source de nos travaux est trouvable sur trois dépôts GitHub différent
 #pagebreak()
 #bibliography("bib.bib", style: "ieee")
 
-/* livres
-auteur, "titre", ed, date
-
-_nom site_, "titre", auteur (date). URL */
