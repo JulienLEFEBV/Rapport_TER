@@ -82,7 +82,6 @@
   )
 }
 
-
 #let mathcounter = rich-counter(
   identifier: "mathblocks",
   inherited_levels: 1,
@@ -97,23 +96,44 @@
 )
 
 // Links
-#let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]
-#let vk_guide = link("https://vkguide.dev/")[*VulkanGuide*]
-#let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
-#let ptvk(x) = link("https://github.com/CorentinVaillant/Vk-Path-Tracer")[#x]
-#let suisses = link(
-  "https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo",
-)[*Monte Carlo Estimators for Differential Light Transport*]
-#let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
-#let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
-#let VCM = link("https://www.iliyan.com/publications/ImplementingVCM/")[*Vertex Connection and Merging*]
-#let cone = link("https://en.wikipedia.org/wiki/Cone_tracing")[*Cone Tracing*]
-#let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
-#let Veach_equation_du_rendu_chemin = link(
-  "https://graphics.stanford.edu/papers/metro/metro.pdf",
-)[*Metropolis Light Transport*]
-#let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
-#let reynolds = link("https://academicweb.nd.edu/~powers/ame.20231/reynolds1903.pdf")[*The Sub-Mechanics of the Universe*]
+// #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]s
+#let raytracing_in_one_weekend = [*Raytracing in one weekend* @RayTracingInOneWeekend]
+#let raytracing_serie = [*Ray Tracing in One Weekend — The Book Series* @RayTracingInOneWeekend @RayTracingTheNextWeek @RayTracingTheRestOfYourLife]
+// #let vk_guide = link("https://vkguide.dev/")[*VulkanGuide*]
+#let vk_guide = [*VulkanGuide* @VkGuide]
+// #let shuang_zhao = link("https://projects.shuangz.com/psdr-sg20/")[*Path-Space Differentiable Rendering*]
+#let shuang_zhao = [*Path-Space Differentiable Rendering* @PathSpaceDifferentiableRendering]
+
+// #let suisses = link("https://rgl.epfl.ch/publications/Zeltner2021MonteCarlo")[*Monte Carlo Estimators for Differential Light Transport*]
+#let suisses = [*Monte Carlo Estimators for Differential Light Transport* @Zeltner2021MonteCarlo]
+
+// #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
+#let equation_rendu = [*Page Wikipedia Equation du Rendu* @wiki:ÉquationDuRendu]
+
+// #let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
+#let metropolis = [*Metropolis Ligth Transport* @wiki:Metropolis_light_transport]
+
+// #let VCM = link("https://www.iliyan.com/publications/ImplementingVCM/")[*Vertex Connection and Merging*]
+#let VCM = [*Vertex Connection and Merging* @Georgiev:ImplementingVCM]
+
+// #let cone = link("https://en.wikipedia.org/wiki/Cone_tracing")[*Cone Tracing*]
+#let cone = [*Cone Tracing* @wiki:Cone_tracing]
+
+// #let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
+#let splating = [*Gaussian Splating* @wiki:Gaussian_splatting]
+
+// #let Veach_equation_du_rendu_chemin = link("https://graphics.stanford.edu/papers/metro/metro.pdf")[*Metropolis Light Transport*]
+#let Veach_equation_du_rendu_chemin = [*Metropolis Light Transport* @veach:MetropolisLightTransport]
+
+// #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
+#let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
+
+// #let reynolds = link("https://academicweb.nd.edu/~powers/ame.20231/reynolds1903.pdf")[*The Sub-Mechanics of the Universe*]
+#let reynolds = [*The Sub-Mechanics of the Universe* @Reynold:SubMechOfTheUniverse]
+
+#let slang = [*Slang* @SlangDoc]
+
+#let ptvk(x) = link("https://github.com/Coren tinVaillant/Vk-Path-Tracer")[#x]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -336,7 +356,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
           LineComment(Assign(wi, $normalize(p0-x2)$))[direction de $x2$ vers $p0$]
 
           Assign(alphadirect, $p0. L_e (p0 -> x_1) f_s (p0 -> x1 -> x2) G(p0,x1)$)
-          Assign($L$, $L + T dot alphadirect \/ PP_("lumières")(p_0)$)
+          Assign($L$, $L + beta alphadirect \/ PP_("lumières")(p_0)$)
 
           LineBreak
           Assign(wi, $omega ~ PP_("bsdf")$)
@@ -346,7 +366,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
           Assign(alphaindirect, $f_s (x0 -> x1 -> x2) G(x0,x1)$)
           Comment([On convertie la probabilité en mesure d'aire :]) //TODO détailler mesure angle / aire
           Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$) //TODO definir #n
-          Assign($T$, $T alphaindirect \/q$)
+          Assign($beta$, $beta alphaindirect \/q$)
 
           LineBreak
 
@@ -414,19 +434,19 @@ Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shua
 //@Corentin tu pourras regarder un peu l'orthographe et si il y a des trucs sus dans les équations au cas où la fatigue m'ai fait écrire nimp ? J'ai relu mais au cas où
 
 #definition(title: "Configuration de référence, mouvement et déformation")[
-  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence. 
+  Soit #mat_space un manifold 2D abstrait que l'on nommera configuration de référence.
   On appelle une déformation de #mat_space une fonction injective différentiable de #mat_space sur une surface #ensemble_surfaces.
-  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces. 
+  On appelle #mouvement un mouvement de #mat_space une fonction $cal(C)^3$ de $#mat_space times RR$ dans #ensemble_surfaces.
   De plus nous pouvons remarquer que si on fixe un paramètre $pi in RR$, alors $#mouvement\(dot,pi)$ est une déformation de #mat_space.
 ]
- 
-#definition(title : "Surface évoluante, carte de référence et trajectoire")[
+
+#definition(title: "Surface évoluante, carte de référence et trajectoire")[
   Pour un mouvement #mouvement et un paramètre $pi$, on appelle surface évoluante l'image $#ensemble_surfaces\(pi) := {#mouvement\(p,pi) : p in #mat_space} in RR^3$ de la fonction $#mouvement\(p,pi)$.
   De plus, comme cette fonction est injective, on peut définir une fonction inverse sur son image $P(dot,pi) : #ensemble_surfaces\(pi) -> #mat_space$ que l'on appellera carte de référence.
-  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in  #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
+  Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
 ]
 
-#definition(title : "Espace des matériaux et espace des position")[
+#definition(title: "Espace des matériaux et espace des position")[
   On appellera $p in #mat_space$ un point de matériau et $x in #ensemble_surfaces\(pi)$ un point de position.
   Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
   On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
@@ -455,7 +475,7 @@ Pour les définitions, nous allons poser $phi\(x,pi)$ un champ de position scala
 
 #definition(title : "Dérivée de scène")[
   $phi$ admet une dérivée de scène de la forme :
-  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi,pi'),pi') |_(pi'=pi) $ <derivée_scene>
+  $ dot(phi)\(x,pi) = partial / (partial pi') phi(hat(x)\(xi, pi'),pi') |_(pi'=pi) $ <derivée_scene>
   Elle admet aussi une forme normalisée de cette dérivée :
   $ phi^square = dot(phi) - v_tan dot "grad"_#ensemble_surfaces (phi) $ <derivée_norm_scene>
 ]
@@ -607,14 +627,22 @@ Cette première implantation souffrait de la faible parallélisation du `CPU`. E
 La suite des tutoriels de _Peter Shirley_ nous a amenés à construire des rendus plus élaborés.
 Nous avons donc ajouté la possibilité d'avoir des matériaux volumétriques et des textures.
 
-*TODO IMG VOLUMÉTRIQUE && textures*
+#let vol_text_caption = "Scène rendue à partir du ray tracer CPU implanté."
+#let vol_text = image("Images/Rt_series/text_plus_vol.png", width: 70%, alt: vol_text_caption)
+
+#figure(vol_text, caption: vol_text_caption)
 
 Afin d'accélérer le processus, nous avons implanté divers moyens d'accélérer le processus, comme des `BVH` (Bounding Volume Hierarchy, comprendre hiérarchie des volumes englobants), et des méthodes de Monte Carlo plus efficaces, par exemple, au lieu d'opérer la quadrature sur une marche aléatoire à direction uniforme, nous tirons une direction en fonction de la distribution de la `BRDF`.
 
 Au fur et à mesure, le tutoriel nous amène à construire un path tracer, les nouvelles directions sont donc tirées en fonction du placement des lumières, et l'on passe d'un programme récursif à terminal-récursif.
 
 De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles que le chargement de maillage et le multi-threading.
-*TODO add mesh*
+
+#let vol_text_caption = "Scène rendue à partir du path tracer CPU implanté."
+#let vol_text = image("Images/Rt_series/dragon.png", width: 70%, alt: vol_text_caption)
+
+#figure(vol_text, caption: vol_text_caption)
+
 
 == Passage sur GPU
 
@@ -638,7 +666,7 @@ Une fois `Vulkan` appréhendé, nous avons fait notre premier ray tracer sur `GP
   caption: gpu_raytrace_img_caption,
 )
 
-De plus, nous avons utilisé le langage de shader #link("https://shader-slang.org/")[*Slang*], un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
+De plus, nous avons utilisé le langage de shader #slang, un langage de shader qui nous permet d'exécuter du code directement sur la carte graphique. Nous avons choisi ce langage car l'auto-différentiation y est implanté.
 
 Malheureusement, le temps nous a manqué, l'implantation du ray tracer sur `Vulkan` a pris plus de temps que prévu, et la complexité des mathématiques utilisées dans l'algorithme du path tracer nous a ralentis. Le path tracer que nous voulions implémenter n'a donc pas pu être fini à temps.\
 Nous avons donc décidé qu'après le rendu de ce rapport, nous finaliserons l'implantation, pour à terme, y inclure les travaux de _Shuang Zhao_.
@@ -647,8 +675,16 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
+À faire...
+
 #let todo_corentin3 //Tu pourras faire la conclusion stp ? 
 
 = Annexe
 
-== Bibliographie
+
+#bibliography("bib.bib", style: "ieee")
+
+/* livres
+auteur, "titre", ed, date
+
+_nom site_, "titre", auteur (date). URL */
