@@ -834,12 +834,17 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-Il s'agit d'un plan pour la conclusion :
+// Il s'agit d'un plan pour la conclusion :
 
-Plan rendu :
-Nous avons vu : equation du rendu, ray tracing et path tracing, la différentition
-Nous avons fait : implém => finir implém
-Ouverture => autres papier de l'UC (Zhao chez NVidia) + autres méthodes (diff des estimateurs / estimateur de fonctionnels ...)
+// Plan rendu :
+// Nous avons vu : equation du rendu, ray tracing et path tracing, la différentition
+// Nous avons fait : implém => finir implém
+// Ouverture => autres papier de l'UC (Zhao chez NVidia) + autres méthodes (diff des estimateurs / estimateur de fonctionnels ...)
+
+Au terme de ce `TER` nous avons donc vu la théorie derrière le rendu physiquement réaliste, notamment avec l'équation du rendu, et les abstractions mathématiques qui l'accompagnent. Nous avons donc pu mettre en œuvre cette théorie, et l'appliquer sur `CPU` et partiellement sur `GPU`. De plus nous avons étudié différentes méthodes de différentiation du rendu, celle de `UC`, qui sépare le résultat en deux problèmes différents, avec pour le premier, une simple différentiation des calculs du path tracer, et pour le second, une méthode à part pour les segments de discontinuité de l'image.\
+Ensuite nous avons vu une méthode alternative, proposée par l'`EPFL`, où la méthode consiste à s'aider du multi-importance sampling, et de la construction de différents estimateurs de  Monte Carlo.\
+Par la suite, nous aimerions terminer notre implantation sur `GPU`, notamment celle du path tracer, et suivre sur l'implantation de la méthode développée par l'`UC`.\
+Et aussi, continuer l'étude du rendu différentiel. En effet, l'équipe de _Shuang Zhao_ a peaufiné sa méthode, pour l'étendre au médium semi-opaque (gaz/liquides), et a amélioré l'algorithme. Il faut aussi noter que d'autres méthodes sont en cours de développement, comme par exemple des estimateurs de fonctionnels développés à l'`IRIT`.
 
 = Annexe
 
