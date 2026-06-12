@@ -408,7 +408,7 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
   ]
 = La Différentiation
 
-== Différence Fini : la Méthode Naïve
+== Différence Fini
 Pour obtenir une approximation, nous pourrions utiliser la méthode des différences finies.
 
 Pour toute fonction $cal(C)^(1)$ $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
@@ -431,7 +431,7 @@ Premièrement, la stabilité numérique des nombres à virgule flottante. En eff
 
 Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc le doublage du temps de calcul.
 
-== Différentiation à l'Aide d'un Path Tracer : la Méthode de l'UC
+== Différentiation sur l'espace des chemins
 
 #let alphadotdirect = $dot(alpha)_("directe")$
 #let alphadotindirect = $dot(alpha)_("indirecte")$
@@ -754,9 +754,9 @@ Grâce à cela nous pouvons créer l'estimateur de Monte Carlo suivant :
 
 Pour l'échantillonnage du point de discontinuité et de la direction, nous pourrions utiliser une distribution uniforme, mais cela pourrait donner une convergence lente. C'est pour cela que nous pouvons utiliser une carte de photons (issue du photon mapping) et une carte d'importance (issue d'un photon mapping partant de la caméra). Pour voir plus en détail comment nous pouvons mettre en place cet échantillonnage, veuillez consulter le travail de _Shuang Zhao_ et son équipe (#shuang_zhao). //@Corentin Je detail pas plus il est tard et en plus j'ai peur pour la place honnêtement. Enfin à voir :p
 
-== Différentiation à l'Aide du Multi Importance Sampling : la Méthode de l'EPFL
+== Différentiation des estimateurs
 
-Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'échantillonnage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon (puis j'ai la flemme de me replonger dans le papelard à 6 heure du mat bruh) (si ça te vas pas tu as le droit de me detester par ailleur) bon au lit zzzzzzzzzz
+Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'échantillonnage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon, bon au lit zzzzzzzzzz
 // Bonne nuit Julien, c'est parfait (comme toi mon cher)
 
 // implantation
