@@ -36,4 +36,4 @@ Corentin :
     - => Problème difficile 
     - => Comment on esr arrivé jusqu'ici
 
- - Manque thm de la mesure 
+ - [X] Manque thm de la mesure 

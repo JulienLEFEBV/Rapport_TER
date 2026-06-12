@@ -341,7 +341,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est la sensibilité du capteur,
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
-  $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
+  $ #g($x_(n+1)$, $x_(n-1)$, $w_n$) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
   $ G(x_n <-> x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
 
