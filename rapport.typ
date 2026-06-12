@@ -8,7 +8,6 @@
 #import "@preview/great-theorems:0.1.2": *
 #import "@preview/rich-counters:0.2.1": *
 
-#set heading(numbering: "1.1")
 #show: great-theorems-init
 
 #show: latexlike-report.with(
@@ -55,7 +54,7 @@
   //===========Page style===============
   // @JulienLEFEBV > on peut le passer à false, moins lisible mais on gagne pas mal de pages
   pagebreak-section: false, //For pagebreak after adding a new level one heading (=)
-  show-outline: true, //true or false
+  show-outline: false, //true or false
   page-paper: "a4",
 
   //-----chic header package----
@@ -95,6 +94,21 @@
   blocktitle: "Définition",
   counter: mathcounter,
 )
+
+// Remerciements
+= Remerciements <nonumber>
+#set heading(numbering: none)
+
+Nous tenions à remercier les professeurs nous ayant accompagnés lors de notre parcours, ainsi que notre encadrant pour le ce `TER`, Mathias Paulin, Mathieu Sablik, Milan Poquet et Armelle Bonenfant.
+
+Ainsi que les deux relecteurs externes au projet, qui nous ont permis d'obtenir une meilleure rédaction, Thomas Saurel, Eiden Anger.
+
+Et de plus nous aimerions remercier les membres de nos familles, sans qui cela n'aurait pas été possible : Cyril et Aline Lefebvre, Nathalie Chevalier  et Mathieu Vaillant.
+
+#pagebreak()
+#set heading(numbering: "1.1")
+#outline()
+#pagebreak()
 
 // Links
 // #let raytracing_in_one_weekend = link("https://raytracing.github.io/")[*Raytracing in one weekend*]s
