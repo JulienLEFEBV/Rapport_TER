@@ -113,7 +113,7 @@
 #let suisses = [*Monte Carlo Estimators for Differential Light Transport* @Zeltner2021MonteCarlo]
 
 // #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
-#let equation_rendu = [*Page Wikipedia Equation du Rendu* @wiki:ÉquationDuRendu]
+#let equation_rendu = [*The Rendering Equation* @kajiya1986rendering]
 
 // #let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
 #let metropolis = [*Metropolis Ligth Transport* @wiki:Metropolis_light_transport]
@@ -128,7 +128,7 @@
 #let splating = [*Gaussian Splating* @wiki:Gaussian_splatting]
 
 // #let Veach_equation_du_rendu_chemin = link("https://graphics.stanford.edu/papers/metro/metro.pdf")[*Metropolis Light Transport*]
-#let Veach_equation_du_rendu_chemin = [*Metropolis Light Transport* @veach:MetropolisLightTransport]
+#let Veach_equation_du_rendu_chemin = [*Robust monte carlo methods for light transport simulation* @927297]
 
 // #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 #let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
@@ -182,7 +182,7 @@ Enfin nous finirons par regarder une autre approche à ce problème avec les tra
 
 Pour effectuer un rendu 3D, nous allons essayer de calculer la luminance des différentes surfaces de notre scène.
 La luminance représente la luminosité que l'œil humain perçoit, provenant d'une surface qui émet de la lumière soit en tant que source de lumière, soit par réflexion ou transmission.
-L'équation du rendu (#equation_rendu) nous permet de calculer la luminance sur les différentes surfaces de notre scène 3D.
+L'équation du rendu nous permet de calculer la luminance sur les différentes surfaces de notre scène 3D. Cette équation provient de la physique et a été introduite dans le domaine de l'informatique graphique par _Kajiya_ en 1986 dans #equation_rendu. Elle considère que le milieu entre les différents matériaux a un indice de réfraction homogène, notamment comme dans le vide, et elle ne se base que sur les principes d'optique géométrique sans prendre en compte les principes d'optique ondulatoire, ce qui exclut le traitement de la diffraction.
 On peut la définir comme ci-dessous :
 
 #definition(title: "Equation du Rendu")[
@@ -205,7 +205,8 @@ On peut la définir comme ci-dessous :
   - $cosbar(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
 ]
 
-L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique, notamment en raison de sa nature récursive.
+L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique dans la grande majorité des cas, notamment en raison de sa nature récursive. 
+De plus cette intégrale est convergente grâce au principe physique de la conservation de l'énergie.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
 
 == Par quadrature : le Ray Tracing
@@ -264,7 +265,7 @@ Généralement, les implantations du lancer de rayons sont avec de meilleurs moy
 
 == Par Méthode de Monte Carlo : le Path Tracing
 
-L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unité autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997, notamment dans son papier #Veach_equation_du_rendu_chemin.
+L'équation du rendu (@équation_rendu) peut être réécrite de façon à enlever son aspect récursif. Pour cela, au lieu d'intégrer sur la sphère unité autour de chacun des points, nous allons effectuer un changement de variable et intégrer sur des chemins. Cette réécriture a été proposée par _Veach_ en 1997, notamment dans sa thèse #Veach_equation_du_rendu_chemin.
 
 #definition(title: "Chemin de lumière et espace des chemins")[
   Soit #ensemble_surfaces l'ensemble des surfaces des objets de notre scène.
