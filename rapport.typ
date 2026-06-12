@@ -208,9 +208,74 @@ On peut la définir comme ci-dessous :
   - $cosbar(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
 ]
 
-L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique dans la grande majorité des cas, notamment en raison de sa nature récursive. 
+L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique dans la grande majorité des cas, notamment en raison de sa nature récursive.
 De plus cette intégrale est convergente grâce au principe physique de la conservation de l'énergie.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
+
+== Par quadrature : le Ray Tracing
+
+<raytracing_def>
+#definition(title: "Rayon")[
+  On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
+]
+
+Le ray tracing (lancer de rayons dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu). Il a notamment été formulé par _Whitted_ en 1980 dans son papier #raytracing1980.
+Cet algorithme se base sur une technique de lancer de rayons à partir de la caméra vers la scène, c'est-à-dire dans le sens inverse de la lumière.
+Ceci nous donne le même résultat que dans le sens de la lumière d'après le principe du retour inverse de la lumière de Fermat.
+Pour estimer l'intégrale, l'algorithme va discrétiser la sphère unité de l'intégrale du rendu. En effet, il va seulement prendre en compte les directions partant vers les lumières de la scène pour l'éclairage direct et pour l'éclairage indirect, il va prendre les directions données par les lois de Snell-Descartes de réflexion et réfraction de la lumière. En faisant cela, il effectue une quadrature de notre intégrale du rendu. On peut en déduire l'algorithme suivant :
+
+#algorithm-figure(
+  "Ray Tracer",
+  inset: 0.25em,
+  indent: 0.5em,
+  vstroke: 0pt + luma(200),
+  line-numbers-format: x => [#x:],
+  {
+    import algorithmic: *
+
+    Procedure(
+      [$L_i$],
+      ([Rayon $#rayon("r")$], [depth $in NN$]),
+      {
+        Assign("intersection", [Intersection($#rayon("r")$)])
+        Comment[Cas où le rayon n'intersecte aucune surface]
+
+        If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#rayon("r"))$))
+
+        Comment[Recupération de la surface intersectée et de son émission]
+        Assign("surface", "intersection.surface")
+        Assign([$omega_o$], [$-#rayon_dir("r")$])
+        Assign([$L_e$], [surface.Le($omega_o$)])
+        Comment([Cas où on a atteint le nombre maximum d'itération])
+        If("depth = maxDepth", Return("Le"))
+        Comment([Eclairage Direct])
+        Assign([EclairageDirect], [0])
+        For([$L_j$ les vecteurs vers les lumières], Assign(
+          [EclairageDirect],
+          [EclairageDirect + surface.normale $dot$ $L_j$],
+        ))
+        Assign([EclairageDirect], [$"surface."k_d times$ EclairageDirect])
+        Comment([Eclairage Indirecte])
+        Assign([#rayon("réflexion")], [$("intersection.point",#rayon_dir("r")+2 times "surface.normale")$])
+        Assign(
+          [$k_f$],
+          [$(("surface."k_n)^2 times |#rayon_dir("r")|^2 + |#rayon_dir("r") dot "surface.normale"|^2)^(-1/2)$],
+        )
+        Assign(
+          [#rayon("refraction")],
+          [$("intersection.point",k_f times ("surface.normale" + #rayon_dir("r")) - "surface.normale" )$],
+        )
+        Assign(
+          [EclairageIndirect],
+          [$"surface."k_s times L_i (#rayon("réflexion")) + "surface."k_t times L_i (#rayon("réfraction"))$],
+        )
+        Return[$L_e + "EclairageDirect" + "EclairageIndirect"$]
+      },
+    )
+  },
+)
+
+Avec $k_d$ la constante de réflexion diffuse, $k_s$ le coefficient de réflexion spéculaire, $k_t$ le coefficient de translucides et $k_n$ l'indice de réfraction.
 
 == Les méthodes de Monte Carlo
 
@@ -250,24 +315,16 @@ Le choix de $f$ nous permet d'obtenir différentes vitesse de convergences, en e
 
 Il faut néanmoins noté que si $"supp"(U) subset.neq Omega$, l'estimateur sera biaisé, en effet, certaines régions de l'espace d'intégrations ne serons jamais exploré, et donc leurs valeurs jamais ajouté au résultat de l'intégrale.
 
-== Par quadrature : le Ray Tracing
+Les méthodes de Monte Carlo permettent donc de généraliser l'approche par quadrature présentée précédemment, en construisant un estimateur de l'équation du rendu.
 
-<raytracing_def>
-#definition(title: "Rayon")[
-  On appelle rayon un couple $#rayon("r")=(o, arrow(d)) in RR^3 times UU(RR^3)$ où $o$ est un point désignant l'origine du rayon et $arrow(d)$ est un vecteur unitaire désignant la direction du rayon. À noter que la direction n'est pas nécessairement unitaire, mais nous la prendrons ainsi sans perte de généralité pour des raisons de simplicité dans le reste de ce rapport.
-]
+Il se base aussi sur les lois de Snell-Descartes de réflexion et réfraction de la lumière.\
+Il s'agit en fait d'aprocher une quadrature de la scène, à partir de rayons envoyés récursivement de manière aléatoire.
 
-Le ray tracing (lancer de rayons dans la langue de Molière) est un algorithme permettant d'estimer l'équation du rendu (@équation_rendu). Il a notamment été formulé par _Whitted_ en 1980 dans son papier #raytracing1980.
-Cet algorithme se base sur une technique de lancer de rayons à partir de la caméra vers la scène, c'est-à-dire dans le sens inverse de la lumière.
-Ceci nous donne le même résultat que dans le sens de la lumière d'après le principe du retour inverse de la lumière de Fermat. 
-Pour estimer l'intégrale, l'algorithme va discrétiser la sphère unité de l'intégrale du rendu. En effet, il va seulement prendre en compte les directions partant vers les lumières de la scène pour l'éclairage direct et pour l'éclairage indirect, il va prendre les directions données par les lois de Snell-Descartes de réflexion et réfraction de la lumière. En faisant cela, il effectue une quadrature de notre intégrale du rendu. On peut en déduire l'algorithme suivant :
 
+Une méthode de ray tracing s'appuyant sur la marche aléatoire :
 #algorithm-figure(
-  "Ray Tracer",
-  inset: 0.25em,
-  indent: 0.5em,
-  vstroke: 0pt + luma(200),
-  line-numbers-format: x => [#x:],
+  "Marche Aléatoire",
+  vstroke: .5pt + luma(200),
   {
     import algorithmic: *
 
@@ -286,66 +343,22 @@ Pour estimer l'intégrale, l'algorithme va discrétiser la sphère unité de l'i
         Assign([$L_e$], [surface.Le($omega_o$)])
         Comment([Cas où on a atteint le nombre maximum d'itération])
         If("depth = maxDepth", Return("Le"))
-        Comment([Eclairage Direct])
-        Assign([EclairageDirect],[0])
-        For([$L_j$ les vecteurs vers les lumières],Assign([EclairageDirect],[EclairageDirect + surface.normale $dot$ $L_j$]))
-        Assign([EclairageDirect],[$"surface."k_d times$ EclairageDirect])
-        Comment([Eclairage Indirecte])
-        Assign([#rayon("réflexion")],[$("intersection.point",#rayon_dir("r")+2 times "surface.normale")$])
-        Assign([$k_f$],[$(("surface."k_n)^2 times |#rayon_dir("r")|^2 + |#rayon_dir("r") dot "surface.normale"|^2)^(-1/2) $])
-        Assign([#rayon("refraction")],[$("intersection.point",k_f times ("surface.normale" + #rayon_dir("r")) - "surface.normale" )$])
-        Assign([EclairageIndirect],[$"surface."k_s times L_i (#rayon("réflexion")) + "surface."k_t times L_i (#rayon("réfraction"))$])
-        Return[$L_e + "EclairageDirect" + "EclairageIndirect"$]
+        Comment([Calcul de la partie non récursive de l'intégrale de l'équation du rendu])
+        Assign([bsdf], "surface.BSDF")
+        Assign([$omega_i$], [$scr(U)$ ($Omega$)])
+        Assign([$f_(cos)$], [bsdf($omega_o$,$omega_i$) $times$ |$omega_i dot arrow(n)$|])
+        Comment([Si la partie non récursive est nulle il est inutile de continuer d'itérer])
+        If([$f_(cos) = 0$], Return[$L_e$])
+        Comment([Appel récursif, ($1/(4pi)$ : Probabilité de tiré une direction.)])
+        // Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
+        Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?  C'est mieux comme ça
+        Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4 pi))$]
       },
     )
   },
 )
 
-Avec $k_d$ la constante de réflexion diffuse, $k_s$ le coefficient de réflexion spéculaire, $k_t$ le coefficient de translucides et $k_n$ l'indice de réfraction.
-// Il se base aussi sur les lois de Snell-Descartes de réflexion et réfraction de la lumière.\
-// Il s'agit en fait d'une quadrature de la scène, à partir de rayons envoyés récursivement. 
-
-
-// Une méthode de ray tracing naïve de la marche aléatoire :
-// #algorithm-figure(
-//   "Marche Aléatoire",
-//   vstroke: .5pt + luma(200),
-//   {
-//     import algorithmic: *
-
-//     Procedure(
-//       [$L_i$],
-//       ([Rayon $#rayon("r")$], [depth $in NN$]),
-//       {
-//         Assign("intersection", [Intersection($#rayon("r")$)])
-//         Comment[Cas où le rayon n'intersecte aucune surface]
-
-//         If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#rayon("r"))$))
-
-//         Comment[Recupération de la surface intersectée et de son émission]
-//         Assign("surface", "intersection.surface")
-//         Assign([$omega_o$], [$-#rayon_dir("r")$])
-//         Assign([$L_e$], [surface.Le($omega_o$)])
-//         Comment([Cas où on a atteint le nombre maximum d'itération])
-//         If("depth = maxDepth", Return("Le"))
-//         Comment([Calcul de la partie non récursive de l'intégrale de l'équation du rendu])
-//         Assign([bsdf], "surface.BSDF")
-//         Assign([$omega_i$], [$scr(U)$ ($Omega$)])
-//         Assign([$f_(cos)$], [bsdf($omega_o$,$omega_i$) $times$ |$omega_i dot arrow(n)$|])
-//         Comment([Si la partie non récursive est nulle il est inutile de continuer d'itérer])
-//         If([$f_(cos) = 0$], Return[$L_e$])
-//         Comment([Appel récursif, ($1/(4pi)$ : Probabilité de tiré une direction.)])
-//         // Assign([$#rayon("r")$], [CreerRayon($omega_i$)])
-//         Assign([$#rayon("r")$], $("intersection.point", omega_i)$) // @Julien > Qu'en pense tu ?  C'est mieux comme ça
-//         Return[$L_e + f_(cos) times L_i (#rayon("r"),"depth"+1) div(1 / (4 pi))$]
-//       },
-//     )
-//   },
-// )
-
-// // @Julien, pense tu cette section utiles ? Ui
-// Généralement, les implantations du lancer de rayons sont avec de meilleurs moyens pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleure convergence.
-
+Généralement, les implantations du lancer de rayons sont avec de meilleurs moyens pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleure convergence.
 
 == Par Méthode de Monte Carlo : le Path Tracing
 
