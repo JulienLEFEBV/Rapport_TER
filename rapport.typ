@@ -128,7 +128,7 @@
 #let splating = [*Gaussian Splating* @wiki:Gaussian_splatting]
 
 // #let Veach_equation_du_rendu_chemin = link("https://graphics.stanford.edu/papers/metro/metro.pdf")[*Metropolis Light Transport*]
-#let Veach_equation_du_rendu_chemin = [*Robust monte carlo methods for light transport simulation* @927297]
+#let Veach_equation_du_rendu_chemin = [*Robust monte carlo methods for light transport simulation* @veach:PathTracing]
 
 // #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
 #let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
@@ -202,7 +202,8 @@ On peut la définir comme ci-dessous :
   - $Le(x, omega_o)$ représente la luminance émise par le point $x$ dans la direction $omega_o$.
   - $Omega$ représente la sphère de rayon 1 autour du point $x$.
   - $Li(x, omega_i)$ représente la luminance arrivant en $x$ depuis la direction $omega_i$ et elle est définie de la manière suivante : $L_i\(x,omega_i)=L_o\(v\i\s(x,omega_i),-omega_i)$ où $v\i\s(x,omega_i)$ donne le premier point intersecté en partant dans la direction $omega_i$ a partir du point $x$.
-  - $fi(x, omega_o, omega_i)$ représente la BSDF qui nous donne la distribution de la luminance arrivant en $x$ depuis la direction $omega_i$ et dispersé dans la direction $omega_o$, il s'agit en faite d'une fonction décrivant les propriété photométrique d'une matière.
+  - $fi(x, omega_o, omega_i)$ représente la BSDF (Bidirectional Scatering Distribution Function) qui nous donne la distribution de la luminance arrivant en $x$ depuis la direction $omega_i$ et dispersé dans la direction $omega_o$, il s'agit en faite d'une fonction décrivant les propriété photométrique d'une matière.
+  // @JulienLEFEBV > Je ne vois pas quoi dire de plus, qui serait utile, et qui ne rentrerais pas dans de trops grandes explications
   - $theta$ représente l'angle formé $omega_i$ et la $arrow(n)$ normale de la surface.
   - $cosbar(theta)=cos(theta)$ si $cos(theta)>0$ sinon $0$.
 ]
@@ -210,6 +211,44 @@ On peut la définir comme ci-dessous :
 L'un des problèmes de cette équation est que l'on ne peut pas résoudre l'intégrale de façon analytique dans la grande majorité des cas, notamment en raison de sa nature récursive. 
 De plus cette intégrale est convergente grâce au principe physique de la conservation de l'énergie.
 C'est pour cela que des méthodes pour estimer cette intégrale ont été mises en place.
+
+== Les méthodes de Monte Carlo
+
+En informatique, lorsqu'il s'agit de résoudre un problème impliquant
+le calcul d'une valeur numérique, nous utilisons souvent des méthodes
+dites de « Monte Carlo », en référence au célèbre casino qui s'y trouve.
+L'idée est d'approcher une valeur numérique à l'aide de procédés
+aléatoires empiriques. Cela s'avère particulièrement utile pour calculer
+des intégrales sur des domaines non triviaux ($RR^n$, espace des
+chemins, ...).
+
+Voici comment approcher la valeur d'une intégrale grâce aux méthodes
+de Monte Carlo :
+
+Soit $phi$ une fonction continue par morceaux sur $Omega$, on note
+$I := integral_Omega phi(x) dif x$, et on suppose que $I$ converge.
+
+On dispose d'une variable aléatoire $U$ de densité $f$ et de support $Omega$
+($i.e. integral_Omega f(x) dif x = 1$).
+
+On cherche à calculer $I = EE(phi(U) \/ f(U))$. Cette quantité peut
+être approchée de manière empirique grâce au théorème du transfert :
+
+#figure([
+  $display(overline(phi(U))_N = 1/N sum_(i=1)^N phi(U(omega_i)) / f(U(omega_i)))$,
+
+  où $(omega_i)_(1 <= i <= N) in "supp"(U)^N$
+  et $"supp"(U)$ désigne le support de $U$.
+])
+
+La loi des grands nombres nous permet d'avoir que cet estimateur converge presque sûrement
+vers $I$ lorsque $N -> +oo$ :
+
+$ overline(phi(U))_N -->_(N -> +oo) I $
+
+Le choix de $f$ nous permet d'obtenir différentes vitesse de convergences, en effet, si $f$ est concentré là où $phi$ est grand, la variance de l'estimateur sera réduite, et donc la convergence plus rapide.
+
+Il faut néanmoins noté que si $"supp"(U) subset.neq Omega$, l'estimateur sera biaisé, en effet, certaines régions de l'espace d'intégrations ne serons jamais exploré, et donc leurs valeurs jamais ajouté au résultat de l'intégrale.
 
 == Par quadrature : le Ray Tracing
 
@@ -225,7 +264,10 @@ Pour estimer l'intégrale, l'algorithme va discrétiser la sphère unité de l'i
 
 #algorithm-figure(
   "Ray Tracer",
-  vstroke: .5pt + luma(200),
+  inset: 0.25em,
+  indent: 0.5em,
+  vstroke: 0pt + luma(200),
+  line-numbers-format: x => [#x:],
   {
     import algorithmic: *
 
@@ -304,7 +346,6 @@ Avec $k_d$ la constante de réflexion diffuse, $k_s$ le coefficient de réflexio
 // // @Julien, pense tu cette section utiles ? Ui
 // Généralement, les implantations du lancer de rayons sont avec de meilleurs moyens pour estimer le prochain rayon que la marche aléatoire, afin d'obtenir une meilleure convergence.
 
-//TODO mettre comparaison
 
 == Par Méthode de Monte Carlo : le Path Tracing
 
@@ -329,7 +370,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
 #let We(x, y) = $W_(e)(#x -> #y)$
 #let g(z, x, wn) = $g(#z : #x, #wn)$
 #let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n <-> x_(n+1))$
-#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
+#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $x_n$)) dot #We($x_n$, $x_(N-1)$)$
 #let G_def = $VV(x_n <-> x_(n+1))G_0(x_n <-> x_(n+1))$
 #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
 
@@ -342,7 +383,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est la sensibilité du capteur,
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
-  $ #g($x_(n+1)$, $x_(n-1)$, $w_n$)) := #g_def $ <g_équation_du_rendu_chemins>
+  $ #g($x_(n+1)$, $x_(n-1)$, $x_n$) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
   $ G(x_n <-> x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
 
@@ -379,7 +420,10 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
 <pathtracer_def>
 #algorithm-figure(
   "Path Tracer",
-  vstroke: .5pt + luma(200),
+  inset: 0.25em,
+  indent: 0.5em,
+  vstroke: 0pt + luma(200),
+  line-numbers-format: x => [#x:],
   {
     import algorithmic: *
     Procedure(
@@ -428,6 +472,9 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
   },
 )
 
+Ici, le $epsilon$ utilisé dans la boucle introduit un biais. L'idée derrière celui-ci est que lorsque le poids d'un chemin devient trop faible ($beta$), l'ajout d'illuminations à l'accumulateur $L$ devient négligeable, le biais est introduit par le fait que tous les chemins de poids strictement supérieur à $0$ ne peuvent être explorés, nous prendrons donc un sous-ensemble de notre espace d'intégrations. Le contrôle du $epsilon$ nous permet d'ajuster le biais en fonction du résultat souhaité : plus $epsilon$ sera proche de $0$, moins le biais sera présent.\
+Afin de retirer le biais, nous pouvons mettre en place une méthode dite de "roulette russe", qui consiste à fixer une probabilité de terminer le chemin en fonction de $beta$. Plus $beta$ est proche de $0$, plus nous avons de chances de terminer le chemin. Cela nous permet de toujours avoir la possibilité d'explorer tous les chemins possibles.
+
 == Autres Méthodes
 
 De nombreuses autres méthodes existent pour résoudre l'équation du rendu et ont chacune leurs avantages mais aussi leurs inconvénients. Parmi celles-ci, on retrouve :
@@ -452,7 +499,7 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
   ]
 = La Différentiation
 
-== Différence Fini
+== Differentiation par différence fini
 Pour obtenir une approximation, nous pourrions utiliser la méthode des différences finies.
 
 Pour toute fonction $cal(C)^(1)$ $f$, le théorème de Taylor nous donne pour $V$ un voisinage de $x_0$:
@@ -483,7 +530,10 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 #let interior_intr_algo = [
   #algorithm-figure(
     "Differentiation du Path Tracer : intérieur",
-    vstroke: .5pt + luma(200),
+    inset: 0.25em,
+    indent: 0.5em,
+    vstroke: 0pt + luma(200),
+    line-numbers-format: x => [#x:],
     {
       import algorithmic: *
       Procedure(
@@ -559,7 +609,10 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 #let boundary_intr_algo = [
   #algorithm-figure(
     "Differentiation du Path Tracer : bordure",
-    vstroke: .5pt + luma(200),
+    inset: 0.25em,
+    indent: 0.5em,
+    vstroke: 0pt + luma(200),
+    line-numbers-format: x => [#x:],
     {
       import algorithmic: *
       Procedure(
@@ -800,7 +853,7 @@ Pour l'échantillonnage du point de discontinuité et de la direction, nous pour
 
 == Différentiation des estimateurs
 
-Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'échantillonnage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon, bon au lit zzzzzzzzzz
+Contrairement à _Shuang Zhao_ et son équipe, _Tizian Zeltner_, _Sébastien Speierer_, _Iliyan Georgiev_ et _Wenzel Jakob_ ont proposé une méthode pour calculer la différentielle sans utiliser le calcul du rendu en lui-même. Pour cela ils ont créé plusieurs estimateurs en appliquant différentes méthodes dans différents ordres. Cela leur a permis d'obtenir des estimateurs "détachés" et "attachés" au paramètre $pi$ de la scène. Ainsi, en combinant ces méthodes à l'aide du multi-importance sampling, qui consiste à effectuer plusieurs méthodes d'échantillonnage et à les additionner en leur attribuant un certain poids en fonction de leur efficacité, ils parviennent à calculer la dérivée de la scène. Pour plus d'informations, veuillez consulter #suisses. //@Corentin Je sais pas trop en terme de place peut être que je développerai un peu plus à l'avenir mais ça me semble bon (puis j'ai la flemme de me replonger dans le papelard à 6 heure du mat bruh) (si ça te vas pas tu as le droit de me detester par ailleur) bon au lit zzzzzzzzzz
 // Bonne nuit Julien, c'est parfait (comme toi mon cher)
 
 // implantation
@@ -878,10 +931,12 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-Au terme de ce `TER` nous avons donc vu la théorie derrière le rendu physiquement réaliste, notamment avec l'équation du rendu, et les abstractions mathématiques qui l'accompagnent. Nous avons donc pu mettre en œuvre cette théorie, et l'appliquer sur `CPU` et partiellement sur `GPU`. De plus nous avons étudié différentes méthodes de différentiation du rendu, celle de `UC`, qui sépare le résultat en deux problèmes différents, avec pour le premier, une simple différentiation des calculs du path tracer, et pour le second, une méthode à part pour les segments de discontinuité de l'image.\
-Ensuite nous avons vu une méthode alternative, proposée par l'`EPFL`, où la méthode consiste à s'aider du multi-importance sampling, et de la construction de différents estimateurs de  Monte Carlo.\
-Par la suite, nous aimerions terminer notre implantation sur `GPU`, notamment celle du path tracer, et suivre sur l'implantation de la méthode développée par l'`UC`.\
-Et aussi, continuer l'étude du rendu différentiel. En effet, l'équipe de _Shuang Zhao_ a peaufiné sa méthode, pour l'étendre au médium semi-opaque (gaz/liquides), et a amélioré l'algorithme. Il faut aussi noter que d'autres méthodes sont en cours de développement, comme par exemple des estimateurs de fonctionnels développés à l'`IRIT`.
+Au terme de ce `TER` nous avons donc vu la théorie derrière le rendu physiquement réaliste, notamment avec l'équation du rendu @kajiya::TheRenderingEq, et les abstractions mathématiques qui l'accompagnent. Nous avons ainsi pu mettre en œuvre cette théorie, grâce aux algorithmes du ray tracing @ImprovedIluminationModelForShadedDisplay et du path tracing @veach:PathTracing, en l'appliquant sur `CPU` et partiellement sur `GPU`, afin d'accélérer les temps de calcul. De plus, nous avons étudié différentes méthodes de différentiation du rendu, celle de _Zhao_, qui sépare le résultat en deux problèmes différents, avec pour le premier une simple différentiation des calculs du path tracer, et pour le second une méthode à part pour les segments de discontinuité de l'image.\
+Ensuite nous avons vu une méthode alternative, proposée par _Wenzel_, où la méthode consiste à différencier les estimateurs.\
+
+Notre formation (`MIDL` à l'Université de Toulouse) nous a permis d'acquérir une solide base de connaissances permettant de faire face aux problèmes et aux solutions auxquels nous avons été confrontés durant ce stage, qui s'avérait être un excellent pont entre la théorie mathématique et ses implications en informatique. Plusieurs domaines étudiés nous ont été particulièrement utiles, comme les probabilités, l'analyse, l'algorithmique et la programmation étudiées lors de notre parcours, même si une base en théorie de la mesure et en programmation sur `GPU` aurait pu nous permettre une compréhension plus rapide de certains concepts.
+
+Par la suite, nous aimerions terminer notre implantation sur `GPU`, notamment celle du path tracer et la méthode développée par _Zhao_. Et de plus continuer l'étude du rendu différentiel. En effet, l'équipe de _Shuang Zhao_ a peaufiné sa méthode, pour l'étendre aux milieux semi-transparents (gaz/liquides), et a amélioré l'algorithme. Il faut aussi noter que d'autres méthodes sont en cours de développement, par exemple des estimateurs de fonctionnelles développés à l'`IRIT`.\
 
 = Annexe
 
