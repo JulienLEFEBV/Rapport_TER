@@ -24,15 +24,15 @@ Corentin :
 [] Ajouter distribution travail annexe   
 
 []Ccl:
- - Changé les titres
- - Rappeller intérêt GPU
- - MEDIUM -> MILLIEU 
- - OPAQUE -> transparent 
+ - [X] Changé les titres
+ - [X] Rappeller intérêt GPU
+ - [X] MEDIUM -> MILLIEU 
+ - [X] OPAQUE -> transparent 
 
- - Faire parallèle avec formation 
- - Ponts math info 
- - TER bon pour ça 
- - Prendre recul 
+ - [X] Faire parallèle avec formation 
+ - [X] Ponts math info 
+ - [] TER bon pour ça 
+ - [] Prendre recul 
     - => Problème difficile 
     - => Comment on esr arrivé jusqu'ici
 
