@@ -17,11 +17,10 @@ Julien :
 
 Corentin :
 
-[] Expliquer BSDF  
-[] Expliquer méthode monte Carlo   
-[] (Intégration)  
+[?] Expliquer BSDF  
+[X] Expliquer méthode monte Carlo   
 [] Expliquer limite marche aléatoire   
-[] Expliquer biais ε du pt => On peut s'en sortir avec la roulette   russe 
+[X] Expliquer biais ε du pt => On peut s'en sortir avec la roulette   russe 
 [] Ajouter distribution travail annexe   
 
 []Ccl:

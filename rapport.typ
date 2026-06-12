@@ -264,7 +264,10 @@ Il s'agit en fait d'une quadrature de la scène, à partir de rayons envoyés r�
 Une méthode de ray tracing naïve de la marche aléatoire :
 #algorithm-figure(
   "Marche Aléatoire",
-  vstroke: .5pt + luma(200),
+  inset: 0.25em,
+  indent: 0.5em,
+  vstroke: 0pt + luma(200),
+  line-numbers-format: x => [#x:],
   {
     import algorithmic: *
 
@@ -375,7 +378,10 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
 <pathtracer_def>
 #algorithm-figure(
   "Path Tracer",
-  vstroke: .5pt + luma(200),
+  inset: 0.25em,
+  indent: 0.5em,
+  vstroke: 0pt + luma(200),
+  line-numbers-format: x => [#x:],
   {
     import algorithmic: *
     Procedure(
@@ -423,6 +429,9 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
     )
   },
 )
+
+Ici, le $epsilon$ utilisé dans la boucle introduit un biais. L'idée derrière celui-ci est que lorsque le poids d'un chemin devient trop faible ($beta$), l'ajout d'illuminations à l'accumulateur $L$ devient négligeable, le biais est introduit par le fait que tous les chemins de poids strictement supérieur à $0$ ne peuvent être explorés, nous prendrons donc un sous-ensemble de notre espace d'intégrations. Le contrôle du $epsilon$ nous permet d'ajuster le biais en fonction du résultat souhaité : plus $epsilon$ sera proche de $0$, moins le biais sera présent.\
+Afin de retirer le biais, nous pouvons mettre en place une méthode dite de "roulette russe", qui consiste à fixer une probabilité de terminer le chemin en fonction de $beta$. Plus $beta$ est proche de $0$, plus nous avons de chances de terminer le chemin. Cela nous permet de toujours avoir la possibilité d'explorer tous les chemins possibles.
 
 == Autres Méthodes
 
@@ -479,7 +488,10 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 #let interior_intr_algo = [
   #algorithm-figure(
     "Differentiation du Path Tracer : intérieur",
-    vstroke: .5pt + luma(200),
+    inset: 0.25em,
+    indent: 0.5em,
+    vstroke: 0pt + luma(200),
+    line-numbers-format: x => [#x:],
     {
       import algorithmic: *
       Procedure(
@@ -555,7 +567,10 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 #let boundary_intr_algo = [
   #algorithm-figure(
     "Differentiation du Path Tracer : bordure",
-    vstroke: .5pt + luma(200),
+    inset: 0.25em,
+    indent: 0.5em,
+    vstroke: 0pt + luma(200),
+    line-numbers-format: x => [#x:],
     {
       import algorithmic: *
       Procedure(
