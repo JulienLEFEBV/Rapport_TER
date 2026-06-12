@@ -370,7 +370,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
 #let We(x, y) = $W_(e)(#x -> #y)$
 #let g(z, x, wn) = $g(#z : #x, #wn)$
 #let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n <-> x_(n+1))$
-#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $w_n$)) dot #We($x_n$, $x_(N-1)$)$
+#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $x_n$)) dot #We($x_n$, $x_(N-1)$)$
 #let G_def = $VV(x_n <-> x_(n+1))G_0(x_n <-> x_(n+1))$
 #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
 
@@ -383,7 +383,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
   $ f(#chemin) = #f_def $ <f_équation_du_rendu_chemins>
   où $W_e$ est la sensibilité du capteur,
   dans notre cas, $W_e$ sera une constante égale à 1 car on utilise une caméra trou d'épingle et
-  $ #g($x_(n+1)$, $x_(n-1)$, $w_n$) := #g_def $ <g_équation_du_rendu_chemins>
+  $ #g($x_(n+1)$, $x_(n-1)$, $x_n$) := #g_def $ <g_équation_du_rendu_chemins>
   où $f_s$ est la BSDF au point $x_n$ dans la direction arrivant de $x_(n-1)$ et allant vers $x_(n+1)$ si $n>0$ sinon $f_s:=L_e (x_0->x_1)$ où $L_e$ est l'émission de la surface $x_0$ dans la direction de $x_1$ et
   $ G(x_n <-> x_(n+1)) := #G_def $ <G_équation_du_rendu_chemins>
 
