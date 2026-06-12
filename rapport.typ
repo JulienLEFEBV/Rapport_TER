@@ -35,7 +35,7 @@
   //=========Font =================
   title-font: "New Computer Modern",
   font: "New Computer Modern",
-  font-size: 11pt,
+  font-size: 10.5pt,
   font-weight: 400,
 
   //============ Math =============
@@ -899,7 +899,7 @@ Cela nous à permis de comprendre le ray tracing de façon concrète, nous avons
 Cette première implantation souffrait de la faible parallélisation du `CPU`. En effet, les temps de rendu pouvaient être très longs.
 
 #let rtowe_caption = "Scène rendue à partir du ray tracer implanté, le temps de rendu est d'environ 3 minutes (CPU $3.5 GHz$)."
-#let rtowe = image("Images/Rt_series/rtowe.png", width: 100%, alt: rtowe_caption)
+#let rtowe = image("Images/Rt_series/rtowe.png", width: 67%, alt: rtowe_caption)
 
 #figure(rtowe, caption: rtowe_caption)
 
@@ -909,7 +909,7 @@ La suite des tutoriels de _Peter Shirley_ nous a amenés à construire des rendu
 Nous avons donc ajouté la possibilité d'avoir des matériaux volumétriques et des textures.
 
 #let vol_text_caption = "Scène rendue à partir du ray tracer CPU implanté."
-#let vol_text = image("Images/Rt_series/text_plus_vol.png", width: 70%, alt: vol_text_caption)
+#let vol_text = image("Images/Rt_series/text_plus_vol.png", width: 65%, alt: vol_text_caption)
 
 #figure(vol_text, caption: vol_text_caption)
 
@@ -920,7 +920,7 @@ Au fur et à mesure, le tutoriel nous amène à construire un path tracer, les n
 De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles que le chargement de maillage et le multi-threading.
 
 #let vol_text_caption = "Scène rendue à partir du path tracer CPU implanté."
-#let vol_text = image("Images/Rt_series/dragon.png", width: 70%, alt: vol_text_caption)
+#let vol_text = image("Images/Rt_series/dragon.png", width: 65%, alt: vol_text_caption)
 
 #figure(vol_text, caption: vol_text_caption)
 
