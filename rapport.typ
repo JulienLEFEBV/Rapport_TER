@@ -139,13 +139,13 @@ Et de plus nous aimerions remercier les membres de nos familles, sans qui cela n
 #let cone = [*Cone Tracing* @wiki:Cone_tracing]
 
 // #let splating = link("https://fr.wikipedia.org/wiki/Gaussian_splatting")[*Gaussian Splating*]
-#let splating = [*Gaussian Splating* @wiki:Gaussian_splatting]
+#let splating = [*Gaussian Splatting* @wiki:Gaussian_splatting]
 
 // #let Veach_equation_du_rendu_chemin = link("https://graphics.stanford.edu/papers/metro/metro.pdf")[*Metropolis Light Transport*]
-#let Veach_equation_du_rendu_chemin = [*Robust monte carlo methods for light transport simulation* @veach:PathTracing]
+#let Veach_equation_du_rendu_chemin = [*Robust Monte Carlo Methods for Light Transport Simulation* @veach:PathTracing]
 
 // #let mecha_fluide = link("https://scispace.com/pdf/transport-relations-for-surface-integrals-arising-in-the-2up2mjqykl.pdf")[*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces*]
-#let mecha_fluide = [*Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces* @CERMELLI_FRIED_GURTIN_2005]
+#let mecha_fluide = [*Transport Relations for Surface Integrals Arising in the Formulation of Balance Laws for Evolving Fluid Interfaces* @CERMELLI_FRIED_GURTIN_2005]
 
 // #let reynolds = link("https://academicweb.nd.edu/~powers/ame.20231/reynolds1903.pdf")[*The Sub-Mechanics of the Universe*]
 #let reynolds = [*The Sub-Mechanics of the Universe* @Reynold:SubMechOfTheUniverse]
@@ -154,7 +154,7 @@ Et de plus nous aimerions remercier les membres de nos familles, sans qui cela n
 
 #let ptvk(x) = link("https://github.com/CorentinVaillant/Vk-Path-Tracer")[#x]
 
-#let raytracing1980 = [*An improved illumination model for shaded display* @whitted1980improved]
+#let raytracing1980 = [*An Improved Illumination Model for Shaded Display* @whitted1980improved]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -264,16 +264,17 @@ Pour estimer l'intégrale, l'algorithme va discrétiser la sphère unité de l'i
         If("depth = maxDepth", Return("Le"))
         Comment([Eclairage Direct])
         Assign([EclairageDirect], [0])
-        For([$L_j$ les vecteurs vers les lumières], Assign(
+        For([$L_j$ les vecteurs vers les lumières visibles], Assign(
           [EclairageDirect],
           [EclairageDirect + surface.normale $dot$ $L_j$],
         ))
         Assign([EclairageDirect], [$"surface."k_d times$ EclairageDirect])
         Comment([Eclairage Indirecte])
+        Assign([#rayon_dir("r")],[$#rayon_dir("r") \/ |#rayon_dir("r") dot "surface.normale"|$])
         Assign([#rayon("réflexion")], [$("intersection.point",#rayon_dir("r")+2 times "surface.normale")$])
         Assign(
           [$k_f$],
-          [$(("surface."k_n)^2 times |#rayon_dir("r")|^2 + |#rayon_dir("r") dot "surface.normale"|^2)^(-1/2)$],
+          [$(("surface."k_n)^2 times |#rayon_dir("r")|^2 - |#rayon_dir("r") + "surface.normale"|^2)^(-1/2)$],
         )
         Assign(
           [#rayon("refraction")],
@@ -514,15 +515,15 @@ De nombreuses autres méthodes existent pour résoudre l'équation du rendu et o
     // > Je ne pense pas que cela soit nécessaire, notamment avec le manque de place.
   ]
 
-+ #block[Le photon mapping (cartographie des photons) qui se base aussi sur une technique de lancer de rayon.
-    Contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une carte de photons.
++ #block[Le photon mapping (cartographie des photons) qui se base aussi sur une technique de lancer de rayon. Il s'agit d'un estimateur de densité et
+    contrairement au ray tracing et au path tracing, les rayons sont envoyés depuis les lumières et on enregistre leurs chemins dans une carte de photons.
     Puis pour effectuer le rendu, on va envoyer un rayon depuis la caméra et à son point d'intersection avec une surface, regarder la concentration de points à proximité sur la carte de photons avec un algorithme des plus proches voisins.
     Cet algorithme est biaisé, donc il n'a pas vraiment d'intérêt à être différencié, mais il joue un rôle dans la méthode proposée par _Shuang Zhao_ et son équipe (#shuang_zhao), nous en reparlerons dans la section dédiée.]
 
-+ #block[Le bidirectional path tracing est une version améliorée du path tracing. Au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité.
++ #block[Le bidirectional path tracing est une version améliorée du path tracing. Donc, comme lui il se base sur un estimateur de Monte Carlo. Pour améliorer la convergence, au lieu de créer des chemins uniquement depuis la caméra, il va aussi créer des chemins partant des lumières et les connecter entre eux avec un rayon de visibilité. Cela permet de conserver les avantages des chemins partant de la caméra qui permettent d'estimer la réflectance et d'avoir en plus les avantages des chemins partant des lumières pour estimer les caustiques.
     De plus cet algorithme est non biaisé mais, malheureusement, à ce jour aucune technique de différentiation n'a été découverte.]
 
-+ #block[Bien d'autres méthodes existent, comme le #metropolis qui se base sur l'algorithme de Metropolis-Hastings, le #VCM qui fusionne le bidirectional path tracing et le photon mapping, le #cone qui donne une épaisseur aux rayons, ce que ne fait pas le raytracing ou encore le #splating qui effectue le rendu à l'aide de données extraites d'image et beaucoup d'autres… //On peut en rajouter si on en trouve des sympas :)
++ #block[Bien d'autres méthodes existent, comme le #metropolis qui est un estimateur de Monte Carlo se basant sur l'algorithme de Metropolis-Hastings, le #VCM qui fusionne le bidirectional path tracing et le photon mapping, le #cone qui donne une épaisseur aux rayons, ce que ne fait pas le raytracing ou encore le #splating qui effectue le rendu à l'aide de données extraites d'image et beaucoup d'autres… //On peut en rajouter si on en trouve des sympas :)
   ]
 = La Différentiation
 
@@ -702,11 +703,16 @@ Avant de commencer à aborder la méthode de _Shuang Zhao_ et son équipe (#shua
   Enfin on appellera trajectoire l'ensemble $#trajectoire$ des couples $(x,pi) in #ensemble_surfaces\(pi) times RR$ des surfaces évoluantes et de leur paramètre $pi$ associé.
 ]
 
-#definition(title: "Espace des matériaux et espace des position")[
+#definition(title: "Espace des matériaux et espace des positions")[
   On appellera $p in #mat_space$ un point de matériau et $x in #ensemble_surfaces\(pi)$ un point de position.
   Nous pouvons aussi remarquer que la déformation $#mouvement\(dot,pi)$ établit une bijection entre les points de matériau et les points de position.
   On appellera champ de matériau une fonction de $#mat_space times RR$ et champ de position une fonction sur la trajectoire $#trajectoire$.
 ]
+
+#figure(
+  image("Images/mat_space.svg", width: 50%,height:15%),
+  caption: [Espace des matériaux et espace des positions],
+)
 
 #definition(title: "Paramétrisation local")[
   Pour une trajectoire $cal(T)$ nous pouvons définir une paramétrisation locale, proche de $(x, pi) in cal(T)$.
@@ -762,6 +768,11 @@ Nous allons par la suite essayer d'appliquer cette relation (@int_avec_reynolds)
 $ I_"direct" = integral_cal(L) f_"direct"\(x) d A(x) $ <eclairement_direct>
 
 avec $f_"direct"\(x) := L_e (x -> y) f_s (x -> y -> y') G(x <-> y)$
+
+#figure(
+  image("Images/scene_direct2.svg", width: 50%,height:20%),
+  caption: [Exemple de configuration],
+)
 
 Pour simplifier la dérivation, nous allons poser les axiomes suivants :
 
@@ -847,6 +858,11 @@ Nous allons maintenant voir les estimateurs de Monte Carlo permettant d'estimer 
 #definition(title: "Sous chemin de source et sous chemin de caméra")[
   Soit $overline(p) = (p^S_s,...,p^S_0,p^C_0,...,p^C_t)$ un chemin dans l'espace des matériaux, on appelle $overline(p)^S = (p^S_s,...,p^S_1)$ le sous-chemin vers la source, il connecte $p^S_0$ à une source de lumière, et $overline(p)^C = (p^C_1,...,p^C_t)$ le sous-chemin vers la caméra, il connecte $p^C_0$ à la caméra.
 ]
+
+#figure(
+  image("Images/bidir_edge.svg", width: 50%,height:15%),
+  caption: [Exemple d'un sous chemin de source et d'un sous chemin de caméra],
+)
 
 Nous allons réécrire l'intégrale de bordure de manière à, pour un point de discontinuité entre $p^S_0$ et $p^C_0$, prendre en compte le sous-chemin de source et le sous-chemin de caméra :
 $ integral_(partial hat(Omega)) hat(f)^S hat(f)^B hat(f)^C $ <bordure_1>
