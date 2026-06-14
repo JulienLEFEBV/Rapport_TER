@@ -206,7 +206,7 @@ On peut la définir comme ci-dessous :
   #let Le(o, w) = $L_e\(#o,#w)$
   #let Li(o, w) = $L_i\(#o,#w)$
   #let cosbar(x) = $overline(cos(#x))$
-  #let fi(x, wo, wi) = $f_(i)(#x)$
+  #let fi(x, wo, wi) = $f_(i)(#x,#wo,#wi)$
   $
     Lo(x, omega_o) = Le(x, omega_o) + integral_Omega Li(x, omega_i) fi(x, omega_o, omega_i) cosbar(theta_i) d omega_i
   $ <équation_rendu>
