@@ -99,7 +99,7 @@
 = Remerciements <nonumber>
 #set heading(numbering: none)
 
-Nous tenions à remercier les professeurs nous ayant accompagnés lors de notre parcours, ainsi que notre encadrant pour le ce `TER`, Mathias Paulin, Mathieu Sablik, Milan Poquet et Armelle Bonenfant.
+Nous tenions à remercier les professeurs nous ayant accompagnés lors de notre parcours, ainsi que notre encadrant pour le ce `TER`, Mathias Paulin, Mathieu Sablik, Millan Poquet et Armelle Bonenfant.
 
 Ainsi que les deux relecteurs externes au projet, qui nous ont permis d'obtenir une meilleure rédaction, Thomas Saurel, Eiden Anger.
 
@@ -127,7 +127,7 @@ Et de plus nous aimerions remercier les membres de nos familles, sans qui cela n
 #let suisses = [*Monte Carlo Estimators for Differential Light Transport* @Zeltner2021MonteCarlo]
 
 // #let equation_rendu = link("https://fr.wikipedia.org/wiki/%C3%89quation_du_rendu")[*Page Wikipedia Equation du Rendu*]
-#let equation_rendu = [*The Rendering Equation* @kajiya1986rendering]
+#let equation_rendu = [*The Rendering Equation* @kajiya:TheRenderingEq]
 
 // #let metropolis = link("https://fr.wikipedia.org/wiki/Metropolis_light_transport")[*Metropolis Ligth Transport*]
 #let metropolis = [*Metropolis Ligth Transport* @wiki:Metropolis_light_transport]
@@ -154,7 +154,7 @@ Et de plus nous aimerions remercier les membres de nos familles, sans qui cela n
 
 #let ptvk(x) = link("https://github.com/CorentinVaillant/Vk-Path-Tracer")[#x]
 
-#let raytracing1980 = [*An Improved Illumination Model for Shaded Display* @whitted1980improved]
+#let raytracing1980 = [*An Improved Illumination Model for Shaded Display* @ImprovedIluminationModelForShadedDisplay]
 
 // Math symboles
 #let ensemble_surfaces = $cal(M)$
@@ -212,7 +212,7 @@ On peut la définir comme ci-dessous :
   $ <équation_rendu>
 
 
-  - $Lo(x, omega_o)$ représente la luminance sortante au point $x$ dans la direction $omega_o$..
+  - $Lo(x, omega_o)$ représente la luminance sortante au point $x$ dans la direction $omega_o$.
   - $Le(x, omega_o)$ représente la luminance émise par le point $x$ dans la direction $omega_o$.
   - $Omega$ représente la sphère de rayon 1 autour du point $x$.
   - $Li(x, omega_i)$ représente la luminance arrivant en $x$ depuis la direction $omega_i$ et elle est définie de la manière suivante : $L_i\(x,omega_i)=L_o\(v\i\s(x,omega_i),-omega_i)$ où $v\i\s(x,omega_i)$ donne le premier point intersecté en partant dans la direction $omega_i$ a partir du point $x$.
@@ -914,7 +914,7 @@ Cela nous à permis de comprendre le ray tracing de façon concrète, nous avons
 
 Cette première implantation souffrait de la faible parallélisation du `CPU`. En effet, les temps de rendu pouvaient être très longs.
 
-#let rtowe_caption = "Scène rendue à partir du ray tracer implanté, le temps de rendu est d'environ 3 minutes (CPU $3.5 GHz$)."
+#let rtowe_caption = "Scène rendue à partir du ray tracer implanté, le temps de rendu est d'environ 3 minutes (CPU 3.5 GHz)."
 #let rtowe = image("Images/Rt_series/rtowe.png", width: 67%, alt: rtowe_caption)
 
 #figure(rtowe, caption: rtowe_caption)
@@ -929,7 +929,7 @@ Nous avons donc ajouté la possibilité d'avoir des matériaux volumétriques et
 
 #figure(vol_text, caption: vol_text_caption)
 
-Afin d'accélérer le processus, nous avons implanté divers moyens d'accélérer le processus, comme des `BVH` (Bounding Volume Hierarchy, comprendre hiérarchie des volumes englobants), et des méthodes de Monte Carlo plus efficaces, par exemple, au lieu d'opérer la quadrature sur une marche aléatoire à direction uniforme, nous tirons une direction en fonction de la distribution de la `BRDF`.
+Afin d'accélérer le processus, nous avons implanté divers moyens d'accélérer le processus, comme des `BVH` (Bounding Volume Hierarchy, comprendre hiérarchie des volumes englobants), et des méthodes de Monte Carlo plus efficaces, par exemple, au lieu d'opérer la progression des rayons à partir d'une marche aléatoire à direction uniforme, nous tirons une direction en fonction de la distribution de la `BRDF`.
 
 Au fur et à mesure, le tutoriel nous amène à construire un path tracer, les nouvelles directions sont donc tirées en fonction du placement des lumières, et l'on passe d'un programme récursif à terminal-récursif.
 
@@ -946,7 +946,7 @@ De plus, nous avons ajouté quelques fonctionnalités supplémentaires, telles q
 Pour la suite, nous avons décidé d'utiliser `Vulkan` pour une implantation sur `GPU`.
 `Vulkan` est une spécification proposée par _Khronos Group_ (qui propose aussi `OpenGL`), qui a vocation à remplacer `OpenGL`.
 `Vulkan` nous permet d'avoir un grand contrôle sur la carte graphique, mais comme le dit l'adage : "Un grand pouvoir implique de grandes responsabilités", la spécification est donc dure à prendre en main, avec un débogage compliqué, et une quantité de code à écrire conséquente.\
-Afin de nous aider, nous avons encore une fois suivi ce tutoriel : #vk_guide, qui nous a permis d'implanter un simple moteur graphique de rasterization.\
+Afin de nous aider, nous avons encore une fois suivi un tutoriel : #vk_guide, qui nous a permis d'implanter un simple moteur graphique de rasterization.\
 Beaucoup d'abstractions utilisées dans le tutoriel ont été réutilisées par la suite.
 
 Une fois `Vulkan` appréhendé, nous avons fait notre premier ray tracer sur `GPU`, bien que rudimentaire, ce dernier était beaucoup plus rapide que les implantations sur `CPU`.
@@ -974,7 +974,7 @@ Le code pourra être trouvé sur le repo Github #ptvk[*Vulkan Path Tracer*].
 
 = Conclusion
 
-Au terme de ce `TER` nous avons donc vu la théorie derrière le rendu physiquement réaliste, notamment avec l'équation du rendu @kajiya::TheRenderingEq, et les abstractions mathématiques qui l'accompagnent. Nous avons ainsi pu mettre en œuvre cette théorie, grâce aux algorithmes du ray tracing @ImprovedIluminationModelForShadedDisplay et du path tracing @veach:PathTracing, en l'appliquant sur `CPU` et partiellement sur `GPU`, afin d'accélérer les temps de calcul. De plus, nous avons étudié différentes méthodes de différentiation du rendu, celle de _Zhao_, qui sépare le résultat en deux problèmes différents, avec pour le premier une simple différentiation des calculs du path tracer, et pour le second une méthode à part pour les segments de discontinuité de l'image.\
+Au terme de ce `TER` nous avons donc vu la théorie derrière le rendu physiquement réaliste, notamment avec l'équation du rendu @kajiya:TheRenderingEq, et les abstractions mathématiques qui l'accompagnent. Nous avons ainsi pu mettre en œuvre cette théorie, grâce aux algorithmes du ray tracing @ImprovedIluminationModelForShadedDisplay et du path tracing @veach:PathTracing, en l'appliquant sur `CPU` et partiellement sur `GPU`, afin d'accélérer les temps de calcul. De plus, nous avons étudié différentes méthodes de différentiation du rendu, celle de _Zhao_, qui sépare le résultat en deux problèmes différents, avec pour le premier une simple différentiation des calculs du path tracer, et pour le second une méthode à part pour les segments de discontinuité de l'image.\
 Ensuite nous avons vu une méthode alternative, proposée par _Wenzel_, où la méthode consiste à différencier les estimateurs.\
 
 Notre formation (`MIDL` à l'Université de Toulouse) nous a permis d'acquérir une solide base de connaissances permettant de faire face aux problèmes et aux solutions auxquels nous avons été confrontés durant ce stage, qui s'avérait être un excellent pont entre la théorie mathématique et ses implications en informatique. Plusieurs domaines étudiés nous ont été particulièrement utiles, comme les probabilités, l'analyse, l'algorithmique et la programmation étudiées lors de notre parcours, même si une base en théorie de la mesure et en programmation sur `GPU` aurait pu nous permettre une compréhension plus rapide de certains concepts.
@@ -985,9 +985,10 @@ Par la suite, nous aimerions terminer notre implantation sur `GPU`, notamment ce
 
 Le code source de nos travaux est trouvable sur trois dépôts GitHub différents :
 
-- Le code sources des tutoriels, et des implantations CPU sur #link("https://github.com/CorentinVaillant/travaux_TER.git")
-– L'implantation du path tracer sur GPU est disponible sur #link("https://github.com/CorentinVaillant/Vk-Path-Tracer")
-- Et le rapport se trouve sur #link("https://github.com/JulienLEFEBV/Rapport_TER")
+- Le code sources des tutoriels, et des implantations CPU sur #link("https://github.com/CorentinVaillant/travaux_TER.git").
+- L'implantation du path tracer sur GPU est disponible sur #link("https://github.com/CorentinVaillant/Vk-Path-Tracer").
+- Et le rapport se trouve sur #link("https://github.com/JulienLEFEBV/Rapport_TER").
+
 
 #pagebreak()
 #bibliography("bib.bib", style: "ieee")
