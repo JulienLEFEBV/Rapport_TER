@@ -458,7 +458,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
       [$L_i$],
       [Rayon $#r$],
       {
-        Assign(wo, $#r_dir$)
+        Assign(wo, $-#r_dir$)
         Assign(x1, $#r_ori$)
         Assign("intersection", $"Intersection"(#r)$)
         If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#r)$))
@@ -627,7 +627,7 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
 #let wB = $omega^B$
 #let betaB = $beta^B$
 #let betaS = $beta^S$
-#let betaD = $beta^S$
+#let betaD = $beta^C$
 #let pS0 = $p^S_0$
 #let pC0 = $p^C_0$
 #let itersec_src = $"intersec"_"src"$
@@ -644,7 +644,7 @@ Et de plus, cette méthode nécessite de faire deux rendus, ce qui provoque donc
     {
       import algorithmic: *
       Procedure(
-        [$"PT_diff_intérieur"$],
+        [$"PT_diff_bordure"$],
         [$PP$, Bool _direct_],
         {
           Comment([Échantillonage d'un segment de bordure])
@@ -823,7 +823,7 @@ $ <big_diff_In>
 
 où : $ partial Omega_(N,K) := underbrace(M(pi)^K, "chemin vers la lumière")times underbrace(overline(partial #ensemble_surfaces)_K (pi), "point de discontinuité") times underbrace(#ensemble_surfaces\(pi\)^(N-K), "chemin vers la caméra") $ <omegaNK>
 
-$ d mu'_(N,K) := d cal(l)(x_k) product_(0<=n<=N \ n != K) $ <mu_prime>
+$ d mu'_(N,K) := d cal(l)(x_k) product_(0<=n<=N \ n != K) d A (x_n) $ <mu_prime>
 
 $ Delta f_K (overline(x)) = (f(overline(x)) Delta g(x_K;x_(K-2),x_(K-1))) / g(x_K;x_(K-2),x_(K-1)) $ <delta_f>
 
