@@ -458,7 +458,7 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
       [$L_i$],
       [Rayon $#r$],
       {
-        Assign(wo, $#r_dir$)
+        Assign(wo, $-#r_dir$)
         Assign(x1, $#r_ori$)
         Assign("intersection", $"Intersection"(#r)$)
         If($not"intersection"$, Return($"LumièresDirectionelles".L_(e)(#r)$))
