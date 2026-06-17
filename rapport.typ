@@ -398,7 +398,7 @@ En réécrivant l'équation du rendu (@équation_rendu) sur l'espace des chemins
 #let We(x, y) = $W_(e)(#x -> #y)$
 #let g(z, x, wn) = $g(#z : #x, #wn)$
 #let g_def = $f_(s)(x_(n-1) -> x_n -> x_(n+1)) dot G(x_n <-> x_(n+1))$
-#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $x_n$)) dot #We($x_n$, $x_(N-1)$)$
+#let f_def = $(product^(N-1)_(n=0)#g($x_(n+1)$, $x_(n-1)$, $x_n$)) dot #We($x_N$, $x_(N-1)$)$
 #let G_def = $VV(x_n <-> x_(n+1))G_0(x_n <-> x_(n+1))$
 #let G0_def = $(|arrow(n)_(x_n) dot omega_n| |arrow(n)_(x_(n+1)) dot (-omega_n)|)/(|| x_(n+1) - x_n ||^2)$
 
@@ -482,9 +482,10 @@ Il se base sur une méthode de Monte Carlo pour estimer l'intégrale sur les che
           Comment([$(x1,wi)$ : le rayon partant de $x1$ avec la direction $wi$])
           Assign("intersection", $"Intersection"((x1,wi))$)
           If($not"intersection"$, Break)
+          Assign(x0, $"intersection.point"$)
           Assign(alphaindirect, $f_s (x0 -> x1 -> x2) G(x0,x1)$)
           Comment([On convertie la probabilité en mesure d'aire :])
-          Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$) //TODO definir #n
+          Assign($q$, $PP_("bsdf")(wi) (|#n(x0) dot -wi |) / (|| x0 - x1||^2)$)
           Assign($beta$, $beta alphaindirect \/q$)
 
           LineBreak
